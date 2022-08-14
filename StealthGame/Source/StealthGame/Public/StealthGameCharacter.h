@@ -44,6 +44,9 @@ public:
 	/** Delegate to whom anyone can subscribe to receive this event */
 	UPROPERTY(BlueprintAssignable, Category = "Interaction")
 	FOnUseItem OnUseItem;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay")
+	bool bIsCarryingObjective = false;
 protected:
 	
 	/** Fires a projectile. */

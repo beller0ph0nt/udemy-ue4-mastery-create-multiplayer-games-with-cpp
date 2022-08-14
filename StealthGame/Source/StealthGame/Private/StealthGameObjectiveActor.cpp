@@ -6,13 +6,11 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "StealthGameCharacter.h"
 
 // Sets default values
 AStealthGameObjectiveActor::AStealthGameObjectiveActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RootComponent = MeshComponent;
@@ -29,6 +27,14 @@ void AStealthGameObjectiveActor::NotifyActorBeginOverlap(AActor* OtherActor)
 	Super::NotifyActorBeginOverlap(OtherActor);
 
 	PlayEffects();
+
+	auto Character = Cast<AStealthGameCharacter>(OtherActor);
+	if (Character)
+	{
+		Character->bIsCarryingObjective = true;
+
+		Destroy();
+	}
 }
 
 // Called when the game starts or when spawned
@@ -41,10 +47,3 @@ void AStealthGameObjectiveActor::PlayEffects()
 {
 	UGameplayStatics::SpawnEmitterAtLocation(this, PickupEffect, GetActorLocation());
 }
-
-// Called every frame
-void AStealthGameObjectiveActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
