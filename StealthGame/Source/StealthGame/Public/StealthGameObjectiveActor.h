@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "StealthGameObjectiveActor.generated.h"
 
+class USphereComponent;
+class UStaticMeshComponent;
+
 UCLASS()
 class STEALTHGAME_API AStealthGameObjectiveActor : public AActor
 {
@@ -16,6 +19,12 @@ public:
 	AStealthGameObjectiveActor();
 
 protected:
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UStaticMeshComponent* MeshComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USphereComponent* CollisionSphereComponent;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
