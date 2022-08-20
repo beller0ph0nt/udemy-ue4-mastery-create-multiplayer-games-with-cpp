@@ -7,6 +7,7 @@
 #include "StealthGameExtractionZone.generated.h"
 
 class UBoxComponent;
+class UDecalComponent;
 
 UCLASS()
 class STEALTHGAME_API AStealthGameExtractionZone : public AActor
@@ -19,6 +20,9 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UBoxComponent* BoxComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UDecalComponent* DecalComponent;
 
 	UFUNCTION()
 	void BoxComponentBeginOverlap(

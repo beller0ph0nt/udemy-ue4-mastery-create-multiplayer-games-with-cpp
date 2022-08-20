@@ -4,6 +4,7 @@
 #include "StealthGameExtractionZone.h"
 
 #include "Components/BoxComponent.h"
+#include "Components/DecalComponent.h"
 
 AStealthGameExtractionZone::AStealthGameExtractionZone()
 {
@@ -14,6 +15,10 @@ AStealthGameExtractionZone::AStealthGameExtractionZone()
 	BoxComponent->SetBoxExtent(FVector(200.0));
 	BoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::BoxComponentBeginOverlap);
 	BoxComponent->SetupAttachment(RootComponent);
+
+	DecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("DecalComponent"));
+	DecalComponent->DecalSize = FVector(200.0);
+	DecalComponent->SetupAttachment(BoxComponent);
 }
 
 void AStealthGameExtractionZone::BoxComponentBeginOverlap(
