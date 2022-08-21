@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "StealthGameGameMode.h"
+
+#include "Kismet/GameplayStatics.h"
 #include "StealthGameCharacter.h"
 #include "StealthGameHUD.h"
 #include "UObject/ConstructorHelpers.h"
@@ -21,6 +23,16 @@ void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn)
 	if (InstigatorPawn)
 	{
 		InstigatorPawn->DisableInput(nullptr);
+
+		AActor* Actor = UGameplayStatics::GetActorOfClass(this, MissionCompleteViewTarget);
+		if (Actor)
+		{ 
+			auto PlayerController = Cast<APlayerController>(InstigatorPawn->GetController());
+			if (PlayerController)
+			{
+				PlayerController->SetViewTargetWithBlend(Actor, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+			}
+		}
 	}
 
 	OnMissionCompleted(InstigatorPawn);

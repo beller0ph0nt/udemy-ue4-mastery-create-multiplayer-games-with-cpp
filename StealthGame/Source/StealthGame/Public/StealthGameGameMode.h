@@ -17,6 +17,9 @@ public:
 	void CompleteMission(APawn* InstigatorPawn);
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "ViewTargets")
+	TSubclassOf<AActor> MissionCompleteViewTarget;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 	void OnMissionCompleted(APawn* InstigatorPawn);
 };
