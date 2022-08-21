@@ -5,6 +5,8 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/DecalComponent.h"
+#include "StealthGameCharacter.h"
+#include "StealthGameGameMode.h"
 
 AStealthGameExtractionZone::AStealthGameExtractionZone()
 {
@@ -30,4 +32,14 @@ void AStealthGameExtractionZone::BoxComponentBeginOverlap(
 	const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Log, TEXT("Extraction zone have been overlapped"));
+
+	const auto Character = Cast<AStealthGameCharacter>(OtherActor);
+	if (Character && Character->bIsCarryingObjective)
+	{
+		auto GameMode = Cast<AStealthGameGameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->CompleteMission(Character);
+		}
+	}
 }

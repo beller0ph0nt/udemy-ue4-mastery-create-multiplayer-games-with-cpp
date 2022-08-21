@@ -13,6 +13,12 @@ class AStealthGameGameMode : public AGameModeBase
 
 public:
 	AStealthGameGameMode();
+
+	void CompleteMission(APawn* InstigatorPawn);
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	void OnMissionCompleted(APawn* InstigatorPawn);
 };
 
 

@@ -15,3 +15,13 @@ AStealthGameGameMode::AStealthGameGameMode()
 	static ConstructorHelpers::FClassFinder<AHUD> HUDClassFinder(TEXT("/Game/Blueprints/BP_StealthGameHUD"));
 	HUDClass = HUDClassFinder.Class;
 }
+
+void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn)
+{
+	if (InstigatorPawn)
+	{
+		InstigatorPawn->DisableInput(nullptr);
+	}
+
+	OnMissionCompleted(InstigatorPawn);
+}
