@@ -5,6 +5,7 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/DecalComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "StealthGameCharacter.h"
 #include "StealthGameGameMode.h"
 
@@ -31,15 +32,23 @@ void AStealthGameExtractionZone::BoxComponentBeginOverlap(
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Log, TEXT("Extraction zone have been overlapped"));
-
 	const auto Character = Cast<AStealthGameCharacter>(OtherActor);
-	if (Character && Character->bIsCarryingObjective)
+	if (!Character)
+	{
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Extraction zone have been overlapped"));
+	if (Character->bIsCarryingObjective)
 	{
 		auto GameMode = Cast<AStealthGameGameMode>(GetWorld()->GetAuthGameMode());
 		if (GameMode)
 		{
 			GameMode->CompleteMission(Character);
 		}
+	}
+	else
+	{
+		UGameplayStatics::PlaySound2D(this, ObjectiveMissingSound);
 	}
 }
