@@ -19,6 +19,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaTime) override;
 
+private:
+	UFUNCTION()
+	void OnSeePawn(APawn* Pawn);
+
 protected:
 	virtual void BeginPlay() override;
 
