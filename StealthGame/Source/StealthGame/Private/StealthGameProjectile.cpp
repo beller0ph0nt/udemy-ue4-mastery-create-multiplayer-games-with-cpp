@@ -40,4 +40,6 @@ void AStealthGameProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 
 		Destroy();
 	}
+
+	MakeNoise(1.0f, GetInstigator());
 }
