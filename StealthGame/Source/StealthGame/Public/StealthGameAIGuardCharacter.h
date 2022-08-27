@@ -20,11 +20,17 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	FRotator OriginalRotation;
+	FTimerHandle RestoreOriginalRotationTimer;
+
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
 
 	UFUNCTION()
 	void OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume);
+
+	UFUNCTION()
+	void OnRestoreOriginalRotation();
 
 protected:
 	virtual void BeginPlay() override;

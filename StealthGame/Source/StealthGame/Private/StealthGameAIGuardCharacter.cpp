@@ -31,15 +31,33 @@ void AStealthGameAIGuardCharacter::OnSeePawn(APawn* Pawn)
 		return;
 	}
 
-	DrawDebugSphere(GetWorld(), Pawn->GetActorLocation(), 32.0f, 32, FColor::White, false, 10.0);
+	DrawDebugSphere(GetWorld(), Pawn->GetActorLocation(), 32.0f, 32, FColor::White, false, 3.0f);
 }
 
 void AStealthGameAIGuardCharacter::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume)
 {
-	DrawDebugSphere(GetWorld(), Location, 32.0f, 32, FColor::Red, false, 10.0);
+	DrawDebugSphere(GetWorld(), Location, 32.0f, 32, FColor::Red, false, 3.0f);
+
+	FVector NewDirection = Location - GetActorLocation();
+	NewDirection.Normalize();
+
+	FRotator NewRotation = FRotationMatrix::MakeFromX(NewDirection).Rotator();
+	NewRotation.Roll = GetActorRotation().Roll;
+	NewRotation.Pitch = GetActorRotation().Pitch;
+
+	SetActorRotation(NewRotation);
+
+	GetWorld()->GetTimerManager().ClearTimer(RestoreOriginalRotationTimer);
+	GetWorld()->GetTimerManager().SetTimer(RestoreOriginalRotationTimer, this, &ThisClass::OnRestoreOriginalRotation, 3.0f);
+}
+
+void AStealthGameAIGuardCharacter::OnRestoreOriginalRotation()
+{
+	SetActorRotation(OriginalRotation);
 }
 
 void AStealthGameAIGuardCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	OriginalRotation = GetActorRotation();
 }
