@@ -23,6 +23,9 @@ private:
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
 
+	UFUNCTION()
+	void OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume);
+
 protected:
 	virtual void BeginPlay() override;
 

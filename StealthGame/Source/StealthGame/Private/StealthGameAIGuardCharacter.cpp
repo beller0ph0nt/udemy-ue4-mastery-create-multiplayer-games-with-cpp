@@ -11,6 +11,7 @@ AStealthGameAIGuardCharacter::AStealthGameAIGuardCharacter()
 
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComponent"));
 	PawnSensingComponent->OnSeePawn.AddDynamic(this, &ThisClass::OnSeePawn);
+	PawnSensingComponent->OnHearNoise.AddDynamic(this, &ThisClass::OnHearNoise);
 }
 
 void AStealthGameAIGuardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -31,6 +32,11 @@ void AStealthGameAIGuardCharacter::OnSeePawn(APawn* Pawn)
 	}
 
 	DrawDebugSphere(GetWorld(), Pawn->GetActorLocation(), 32.0f, 32, FColor::White, false, 10.0);
+}
+
+void AStealthGameAIGuardCharacter::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume)
+{
+	DrawDebugSphere(GetWorld(), Location, 32.0f, 32, FColor::Red, false, 10.0);
 }
 
 void AStealthGameAIGuardCharacter::BeginPlay()

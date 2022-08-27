@@ -1,12 +1,14 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "StealthGameCharacter.h"
-#include "StealthGameProjectile.h"
+
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 #include "GameFramework/InputSettings.h"
+#include "StealthGameProjectile.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -35,6 +37,7 @@ AStealthGameCharacter::AStealthGameCharacter()
 	Mesh1P->SetRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
 
+	PawnNoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitterComponent"));
 }
 
 void AStealthGameCharacter::BeginPlay()

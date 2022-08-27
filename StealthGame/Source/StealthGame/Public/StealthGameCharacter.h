@@ -6,11 +6,12 @@
 #include "GameFramework/Character.h"
 #include "StealthGameCharacter.generated.h"
 
-class UInputComponent;
-class USkeletalMeshComponent;
-class USceneComponent;
-class UCameraComponent;
 class UAnimMontage;
+class UCameraComponent;
+class UInputComponent;
+class UPawnNoiseEmitterComponent;
+class USceneComponent;
+class USkeletalMeshComponent;
 class USoundBase;
 
 // Declaration of the delegate that will be called when the Primary Action is triggered
@@ -29,6 +30,9 @@ class AStealthGameCharacter : public ACharacter
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "AI")
+	UPawnNoiseEmitterComponent* PawnNoiseEmitterComponent;
 
 public:
 	AStealthGameCharacter();
