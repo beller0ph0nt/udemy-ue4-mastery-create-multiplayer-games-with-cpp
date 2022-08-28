@@ -8,6 +8,14 @@
 
 class UPawnSensingComponent;
 
+UENUM(BlueprintType)
+enum class EAIGuardState : uint8
+{
+	Suspicious = 0,
+	Alerted,
+	Idle
+};
+
 UCLASS()
 class STEALTHGAME_API AStealthGameAIGuardCharacter : public ACharacter
 {
@@ -19,9 +27,16 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	EAIGuardState GetState() const;
+	
+	UFUNCTION()
+	void SetState(EAIGuardState NewState);
+
 private:
 	FRotator OriginalRotation;
 	FTimerHandle RestoreOriginalRotationTimer;
+	EAIGuardState State;
 
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
@@ -37,4 +52,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComponent;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
+	void OnStateChanged(EAIGuardState NewState);
 };

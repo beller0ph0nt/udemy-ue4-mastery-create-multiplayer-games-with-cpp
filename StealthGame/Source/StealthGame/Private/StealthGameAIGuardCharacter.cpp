@@ -25,6 +25,22 @@ void AStealthGameAIGuardCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+EAIGuardState AStealthGameAIGuardCharacter::GetState() const
+{
+	return State;
+}
+
+void AStealthGameAIGuardCharacter::SetState(EAIGuardState NewState)
+{
+	if (State == NewState || State == EAIGuardState::Alerted)
+	{
+		return;
+	}
+
+	State = NewState;
+	OnStateChanged(State);
+}
+
 void AStealthGameAIGuardCharacter::OnSeePawn(APawn* Pawn)
 {
 	if (!Pawn)
@@ -39,6 +55,8 @@ void AStealthGameAIGuardCharacter::OnSeePawn(APawn* Pawn)
 	{
 		GameMode->CompleteMission(Pawn, false);
 	}
+
+	SetState(EAIGuardState::Alerted);
 }
 
 void AStealthGameAIGuardCharacter::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume)
@@ -56,15 +74,20 @@ void AStealthGameAIGuardCharacter::OnHearNoise(APawn* NoiseInstigator, const FVe
 
 	GetWorld()->GetTimerManager().ClearTimer(RestoreOriginalRotationTimer);
 	GetWorld()->GetTimerManager().SetTimer(RestoreOriginalRotationTimer, this, &ThisClass::OnRestoreOriginalRotation, 3.0f);
+
+	SetState(EAIGuardState::Suspicious);
 }
 
 void AStealthGameAIGuardCharacter::OnRestoreOriginalRotation()
 {
 	SetActorRotation(OriginalRotation);
+	SetState(EAIGuardState::Idle);
 }
 
 void AStealthGameAIGuardCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	OriginalRotation = GetActorRotation();
+	SetState(EAIGuardState::Idle);
 }
