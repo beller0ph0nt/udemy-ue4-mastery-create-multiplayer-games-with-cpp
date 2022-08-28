@@ -4,6 +4,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "Perception/PawnSensingComponent.h"
+#include "StealthGameGameMode.h"
 
 AStealthGameAIGuardCharacter::AStealthGameAIGuardCharacter()
 {
@@ -32,6 +33,12 @@ void AStealthGameAIGuardCharacter::OnSeePawn(APawn* Pawn)
 	}
 
 	DrawDebugSphere(GetWorld(), Pawn->GetActorLocation(), 32.0f, 32, FColor::White, false, 3.0f);
+
+	auto GameMode = Cast<AStealthGameGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		GameMode->CompleteMission(Pawn, false);
+	}
 }
 
 void AStealthGameAIGuardCharacter::OnHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume)

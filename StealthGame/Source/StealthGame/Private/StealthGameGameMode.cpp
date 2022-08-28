@@ -18,7 +18,7 @@ AStealthGameGameMode::AStealthGameGameMode()
 	HUDClass = HUDClassFinder.Class;
 }
 
-void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn)
+void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissionSucceeded)
 {
 	if (InstigatorPawn)
 	{
@@ -35,5 +35,5 @@ void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn)
 		}
 	}
 
-	OnMissionCompleted(InstigatorPawn);
+	OnMissionCompleted(InstigatorPawn, bIsMissionSucceeded);
 }

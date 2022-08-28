@@ -44,7 +44,7 @@ void AStealthGameExtractionZone::BoxComponentBeginOverlap(
 		auto GameMode = Cast<AStealthGameGameMode>(GetWorld()->GetAuthGameMode());
 		if (GameMode)
 		{
-			GameMode->CompleteMission(Character);
+			GameMode->CompleteMission(Character, true);
 		}
 	}
 	else
