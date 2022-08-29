@@ -11,10 +11,15 @@ class AStealthGameGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+	DECLARE_MULTICAST_DELEGATE(FOnMissionCompletedDelegate)
+
 public:
 	AStealthGameGameMode();
 
 	void CompleteMission(APawn* InstigatorPawn, bool bIsMissionSucceeded);
+
+public:
+	FOnMissionCompletedDelegate OnMissionCompletedEvent;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "ViewTargets")

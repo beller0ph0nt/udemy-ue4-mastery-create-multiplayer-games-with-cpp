@@ -36,4 +36,5 @@ void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissio
 	}
 
 	OnMissionCompleted(InstigatorPawn, bIsMissionSucceeded);
+	OnMissionCompletedEvent.Broadcast();
 }

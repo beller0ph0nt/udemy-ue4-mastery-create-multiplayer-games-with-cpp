@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "StealthGameAIGuardCharacter.generated.h"
 
+class ATargetPoint;
 class UPawnSensingComponent;
 
 UENUM(BlueprintType)
@@ -23,20 +24,21 @@ class STEALTHGAME_API AStealthGameAIGuardCharacter : public ACharacter
 
 public:
 	AStealthGameAIGuardCharacter();
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION()
-	EAIGuardState GetState() const;
-	
-	UFUNCTION()
-	void SetState(EAIGuardState NewState);
+	EAIGuardState GetState() const { return State; }
 
 private:
 	FRotator OriginalRotation;
 	FTimerHandle RestoreOriginalRotationTimer;
 	EAIGuardState State;
+	int CurrentPatrolPointIndex = 0;
+	int PatrolPointIndexDiff = 1;
+
+	void SetState(EAIGuardState NewState);
+	void StopMovement();
+	void MoveToTheCurrentPatrolPoint();
+	void UpdateCurrentPatrolPoint();
+	void RotateGuardToTheNoiseDirection(const FVector& NoiseLocation);
+	void OnMissionCompleted();
 
 	UFUNCTION()
 	void OnSeePawn(APawn* Pawn);
@@ -53,6 +55,18 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComponent;
 
+	UPROPERTY(EditInstanceOnly, Category = "AI")
+	bool bIsPatrol = false;
+
+	UPROPERTY(EditInstanceOnly, Category = "AI", meta = (EditCondition = "bIsPatrol"))
+	TArray<ATargetPoint*> PatrolPoints;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
 	void OnStateChanged(EAIGuardState NewState);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
+	void OnMoveToTheCurrentPatrolPoint(const ATargetPoint* CurrentPatrolPoint);
+
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void OnPatrolPointReachedSuccessfully();
 };
