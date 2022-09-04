@@ -31,6 +31,17 @@ AStealthGameProjectile::AStealthGameProjectile()
 	InitialLifeSpan = 3.0f;
 }
 
+void AStealthGameProjectile::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (HasAuthority())
+	{
+		SetReplicates(true);
+		SetReplicateMovement(true);
+	}
+}
+
 void AStealthGameProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// Only add impulse and destroy projectile if we hit a physics
@@ -38,8 +49,14 @@ void AStealthGameProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 	{
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
-		Destroy();
+		if (HasAuthority())
+		{
+			Destroy();
+		}
 	}
 
-	MakeNoise(1.0f, GetInstigator());
+	if (HasAuthority())
+	{
+		MakeNoise(1.0f, GetInstigator());
+	}
 }

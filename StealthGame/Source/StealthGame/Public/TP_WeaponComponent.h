@@ -45,7 +45,9 @@ protected:
 	/** Ends gameplay for this component. */
 	UFUNCTION()
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-		
+	
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
 
 private:
 	/** The Character holding this weapon*/
