@@ -40,6 +40,19 @@ AStealthGameCharacter::AStealthGameCharacter()
 	PawnNoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitterComponent"));
 }
 
+void AStealthGameCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!IsLocallyControlled())
+	{
+		FRotator NewRotator = FirstPersonCameraComponent->GetRelativeRotation();
+		NewRotator.Pitch = RemoteViewPitch * 360. / 255.;
+
+		FirstPersonCameraComponent->SetRelativeRotation(NewRotator);
+	}
+}
+
 void AStealthGameCharacter::BeginPlay()
 {
 	// Call the base class  

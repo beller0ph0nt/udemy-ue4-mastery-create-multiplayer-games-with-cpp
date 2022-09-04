@@ -37,6 +37,8 @@ class AStealthGameCharacter : public ACharacter
 public:
 	AStealthGameCharacter();
 
+	virtual void Tick(float DeltaTime) override;
+
 protected:
 	virtual void BeginPlay();
 
