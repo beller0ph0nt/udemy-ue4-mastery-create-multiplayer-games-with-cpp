@@ -20,6 +20,8 @@ AStealthGameObjectiveActor::AStealthGameObjectiveActor()
 	CollisionSphereComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionSphereComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	CollisionSphereComponent->SetupAttachment(RootComponent);
+
+	SetReplicates(true);
 }
 
 void AStealthGameObjectiveActor::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -28,12 +30,15 @@ void AStealthGameObjectiveActor::NotifyActorBeginOverlap(AActor* OtherActor)
 
 	PlayEffects();
 
-	auto Character = Cast<AStealthGameCharacter>(OtherActor);
-	if (Character)
+	if (HasAuthority())
 	{
-		Character->bIsCarryingObjective = true;
+		auto Character = Cast<AStealthGameCharacter>(OtherActor);
+		if (Character)
+		{
+			Character->bIsCarryingObjective = true;
 
-		Destroy();
+			Destroy();
+		}
 	}
 }
 
