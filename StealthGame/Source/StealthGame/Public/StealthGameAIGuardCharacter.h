@@ -26,12 +26,16 @@ public:
 	AStealthGameAIGuardCharacter();
 	EAIGuardState GetState() const { return State; }
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 private:
 	FRotator OriginalRotation;
 	FTimerHandle RestoreOriginalRotationTimer;
-	EAIGuardState State;
 	int CurrentPatrolPointIndex = 0;
 	int PatrolPointIndexDiff = 1;
+
+	UPROPERTY(ReplicatedUsing = OnRep_State)
+	EAIGuardState State;
 
 	void SetState(EAIGuardState NewState);
 	void StopMovement();
@@ -48,6 +52,9 @@ private:
 
 	UFUNCTION()
 	void OnRestoreOriginalRotation();
+
+	UFUNCTION()
+	void OnRep_State();
 
 protected:
 	virtual void BeginPlay() override;

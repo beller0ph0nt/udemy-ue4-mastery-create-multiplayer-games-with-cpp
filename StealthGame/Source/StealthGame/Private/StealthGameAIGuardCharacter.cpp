@@ -4,6 +4,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "Engine/TargetPoint.h"
+#include "Net/UnrealNetwork.h"
 #include "Perception/PawnSensingComponent.h"
 #include "StealthGameGameMode.h"
 
@@ -14,6 +15,12 @@ AStealthGameAIGuardCharacter::AStealthGameAIGuardCharacter()
 	PawnSensingComponent->OnHearNoise.AddDynamic(this, &ThisClass::OnHearNoise);
 }
 
+void AStealthGameAIGuardCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AStealthGameAIGuardCharacter, State);
+}
+
 void AStealthGameAIGuardCharacter::SetState(EAIGuardState NewState)
 {
 	if (State == NewState || State == EAIGuardState::Alerted)
@@ -22,7 +29,7 @@ void AStealthGameAIGuardCharacter::SetState(EAIGuardState NewState)
 	}
 
 	State = NewState;
-	OnStateChanged(State);
+	OnRep_State();
 }
 
 void AStealthGameAIGuardCharacter::StopMovement()
@@ -118,6 +125,11 @@ void AStealthGameAIGuardCharacter::OnRestoreOriginalRotation()
 	SetActorRotation(OriginalRotation);
 	SetState(EAIGuardState::Idle);
 	MoveToTheCurrentPatrolPoint();
+}
+
+void AStealthGameAIGuardCharacter::OnRep_State()
+{
+	OnStateChanged(State);
 }
 
 void AStealthGameAIGuardCharacter::BeginPlay()
