@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "GameFramework/InputSettings.h"
+#include "Net/UnrealNetwork.h"
 #include "StealthGameProjectile.h"
 
 
@@ -58,6 +59,13 @@ void AStealthGameCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
+}
+
+void AStealthGameCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(AStealthGameCharacter, bIsCarryingObjective, COND_OwnerOnly);
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
