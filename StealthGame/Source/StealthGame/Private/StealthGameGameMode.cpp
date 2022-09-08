@@ -4,6 +4,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "StealthGameCharacter.h"
+#include "StealthGameGameState.h"
 #include "StealthGameHUD.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -16,14 +17,14 @@ AStealthGameGameMode::AStealthGameGameMode()
 
 	static ConstructorHelpers::FClassFinder<AHUD> HUDClassFinder(TEXT("/Game/Blueprints/BP_StealthGameHUD"));
 	HUDClass = HUDClassFinder.Class;
+
+	GameStateClass = AStealthGameGameState::StaticClass();
 }
 
 void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissionSucceeded)
 {
 	if (InstigatorPawn)
 	{
-		InstigatorPawn->DisableInput(nullptr);
-
 		AActor* Actor = UGameplayStatics::GetActorOfClass(this, MissionCompleteViewTarget);
 		if (Actor)
 		{ 
@@ -33,6 +34,12 @@ void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissio
 				PlayerController->SetViewTargetWithBlend(Actor, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
 			}
 		}
+	}
+
+	AStealthGameGameState* CurrentGameState = GetGameState<AStealthGameGameState>();
+	if (CurrentGameState)
+	{
+		CurrentGameState->MulticastCompleteMission(InstigatorPawn, bIsMissionSucceeded);
 	}
 
 	OnMissionCompleted(InstigatorPawn, bIsMissionSucceeded);
