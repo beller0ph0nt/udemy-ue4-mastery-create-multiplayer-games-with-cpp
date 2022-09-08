@@ -28,10 +28,13 @@ void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissio
 		AActor* Actor = UGameplayStatics::GetActorOfClass(this, MissionCompleteViewTarget);
 		if (Actor)
 		{ 
-			auto PlayerController = Cast<APlayerController>(InstigatorPawn->GetController());
-			if (PlayerController)
+			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
 			{
-				PlayerController->SetViewTargetWithBlend(Actor, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+				APlayerController* PlayerController = It->Get();
+				if (PlayerController)
+				{
+					PlayerController->SetViewTargetWithBlend(Actor, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+				}
 			}
 		}
 	}
@@ -42,6 +45,5 @@ void AStealthGameGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissio
 		CurrentGameState->MulticastCompleteMission(InstigatorPawn, bIsMissionSucceeded);
 	}
 
-	OnMissionCompleted(InstigatorPawn, bIsMissionSucceeded);
 	OnMissionCompletedEvent.Broadcast();
 }

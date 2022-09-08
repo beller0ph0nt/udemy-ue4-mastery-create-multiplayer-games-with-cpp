@@ -3,14 +3,22 @@
 
 #include "StealthGameGameState.h"
 
+#include "StealthGamePlayerController.h"
+
 void AStealthGameGameState::MulticastCompleteMission_Implementation(APawn* InstigatorPawn, bool bIsMissionSucceeded)
 {
-	for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; It++)
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
 	{
-		APawn* Pawn = It->Get();
-		if (Pawn && Pawn->IsLocallyControlled())
+		AStealthGamePlayerController* CurrentPlayerController = Cast<AStealthGamePlayerController>(It->Get());
+		if (CurrentPlayerController && CurrentPlayerController->IsLocalPlayerController())
 		{
-			Pawn->DisableInput(nullptr);
+			CurrentPlayerController->OnMissionCompleted(InstigatorPawn, bIsMissionSucceeded);
+
+			APawn* Pawn = CurrentPlayerController->GetPawn();
+			if (Pawn)
+			{
+				Pawn->DisableInput(CurrentPlayerController);
+			}
 		}
 	}
 }
