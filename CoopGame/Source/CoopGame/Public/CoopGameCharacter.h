@@ -15,6 +15,10 @@ public:
 	// Sets default values for this character's properties
 	ACoopGameCharacter();
 
+private:
+	void MoveForwardOrBackward(float AxisValue);
+	void MoveLeftOrRight(float AxisValue);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
