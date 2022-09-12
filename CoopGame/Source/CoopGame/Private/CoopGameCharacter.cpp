@@ -1,13 +1,39 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "CoopGameCharacter.h"
+
+#include "Camera/CameraComponent.h"
 
 // Sets default values
 ACoopGameCharacter::ACoopGameCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	CameraComponent->bUsePawnControlRotation = true;
+	CameraComponent->SetupAttachment(RootComponent);
+}
+
+void ACoopGameCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(TEXT("MoveForwardOrBackward"), this, &ThisClass::MoveForwardOrBackward);
+	PlayerInputComponent->BindAxis(TEXT("MoveLeftOrRight"), this, &ThisClass::MoveLeftOrRight);
+
+	PlayerInputComponent->BindAxis(TEXT("TurnUpOrDown"), this, &ThisClass::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis(TEXT("TurnLeftOrRight"), this, &ThisClass::AddControllerYawInput);
+}
+
+void ACoopGameCharacter::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void ACoopGameCharacter::MoveForwardOrBackward(float AxisValue)
@@ -18,28 +44,4 @@ void ACoopGameCharacter::MoveForwardOrBackward(float AxisValue)
 void ACoopGameCharacter::MoveLeftOrRight(float AxisValue)
 {
 	AddMovementInput(GetActorRightVector() * AxisValue);
-}
-
-// Called when the game starts or when spawned
-void ACoopGameCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-// Called every frame
-void ACoopGameCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-// Called to bind functionality to input
-void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent->BindAxis(TEXT("MoveForwardOrBackward"), this, &ThisClass::MoveForwardOrBackward);
-	PlayerInputComponent->BindAxis(TEXT("MoveLeftOrRight"), this, &ThisClass::MoveLeftOrRight);
-
-	PlayerInputComponent->BindAxis(TEXT("MoveUp"), this, &ThisClass::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ThisClass::AddControllerYawInput);
 }
