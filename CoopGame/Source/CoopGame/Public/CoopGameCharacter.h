@@ -7,6 +7,7 @@
 #include "CoopGameCharacter.generated.h"
 
 class UCameraComponent;
+class USpringArmComponent;
 
 UCLASS()
 class COOPGAME_API ACoopGameCharacter : public ACharacter
@@ -22,6 +23,9 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USpringArmComponent* SpringArmComponent;
 
 	virtual void BeginPlay() override;
 

@@ -3,6 +3,7 @@
 #include "CoopGameCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
 ACoopGameCharacter::ACoopGameCharacter()
@@ -10,9 +11,12 @@ ACoopGameCharacter::ACoopGameCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
+	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->SetupAttachment(RootComponent);
+
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->bUsePawnControlRotation = true;
-	CameraComponent->SetupAttachment(RootComponent);
+	CameraComponent->SetupAttachment(SpringArmComponent);
 }
 
 void ACoopGameCharacter::Tick(float DeltaTime)
