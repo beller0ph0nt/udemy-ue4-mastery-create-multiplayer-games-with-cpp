@@ -3,6 +3,7 @@
 #include "CoopGameCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -10,6 +11,8 @@ ACoopGameCharacter::ACoopGameCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->bUsePawnControlRotation = true;
@@ -33,6 +36,9 @@ void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAxis(TEXT("TurnUpOrDown"), this, &ThisClass::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis(TEXT("TurnLeftOrRight"), this, &ThisClass::AddControllerYawInput);
+
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &ThisClass::BeginCrouch);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &ThisClass::EndCrouch);
 }
 
 void ACoopGameCharacter::BeginPlay()
@@ -48,4 +54,14 @@ void ACoopGameCharacter::MoveForwardOrBackward(float AxisValue)
 void ACoopGameCharacter::MoveLeftOrRight(float AxisValue)
 {
 	AddMovementInput(GetActorRightVector() * AxisValue);
+}
+
+void ACoopGameCharacter::BeginCrouch()
+{
+	Crouch();
+}
+
+void ACoopGameCharacter::EndCrouch()
+{
+	UnCrouch();
 }

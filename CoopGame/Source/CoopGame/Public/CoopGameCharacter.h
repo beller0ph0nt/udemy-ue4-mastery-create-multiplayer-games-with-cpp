@@ -32,4 +32,6 @@ protected:
 private:
 	void MoveForwardOrBackward(float AxisValue);
 	void MoveLeftOrRight(float AxisValue);
+	void BeginCrouch();
+	void EndCrouch();
 };
