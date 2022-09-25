@@ -43,6 +43,18 @@ void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ThisClass::Jump);
 }
 
+void ACoopGameCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
+{
+	if (CameraComponent)
+	{
+		OutLocation = CameraComponent->GetComponentLocation();
+		OutRotation = CameraComponent->GetComponentRotation();
+		return;
+	}
+
+	Super::GetActorEyesViewPoint(OutLocation, OutRotation);
+}
+
 void ACoopGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
