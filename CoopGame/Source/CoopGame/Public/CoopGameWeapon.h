@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "CoopGameWeapon.generated.h"
 
+class UDamageType;
 class USkeletalMeshComponent;
 
 UCLASS()
@@ -21,6 +22,9 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* SkeletalMeshComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<UDamageType> DamageType;
 
 	virtual void BeginPlay() override;
 

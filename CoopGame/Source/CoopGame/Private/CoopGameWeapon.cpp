@@ -4,6 +4,7 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 ACoopGameWeapon::ACoopGameWeapon()
 {
@@ -43,6 +44,9 @@ void ACoopGameWeapon::Fire()
 		FHitResult HitResult;
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, QueryParams))
 		{
+			AActor* HitActor = HitResult.GetActor();
+			float Damage = 20.0;
+			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), this, DamageType);
 		}
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
