@@ -7,6 +7,7 @@
 #include "CoopGameWeapon.generated.h"
 
 class UDamageType;
+class UParticleSystem;
 class USkeletalMeshComponent;
 
 UCLASS()
@@ -25,6 +26,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	FName MuzzleSocketName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* MuzzleEffect;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UParticleSystem* ImpactEffect;
 
 	virtual void BeginPlay() override;
 

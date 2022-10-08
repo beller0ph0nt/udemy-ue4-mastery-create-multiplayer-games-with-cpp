@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 ACoopGameWeapon::ACoopGameWeapon()
 {
@@ -12,6 +13,8 @@ ACoopGameWeapon::ACoopGameWeapon()
 
 	SkeletalMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponent"));
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
+
+	MuzzleSocketName = "MuzzleSocket";
 }
 
 void ACoopGameWeapon::Tick(float DeltaTime)
@@ -47,8 +50,18 @@ void ACoopGameWeapon::Fire()
 			AActor* HitActor = HitResult.GetActor();
 			float Damage = 20.0;
 			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), this, DamageType);
+
+			if (ImpactEffect)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, HitResult.ImpactPoint, HitResult.ImpactNormal.Rotation());
+			}
 		}
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
+
+		if (MuzzleEffect)
+		{
+			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, SkeletalMeshComponent, MuzzleSocketName);
+		}
 	}
 }
