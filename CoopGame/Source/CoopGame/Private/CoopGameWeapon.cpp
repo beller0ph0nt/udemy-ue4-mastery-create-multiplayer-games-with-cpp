@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 ACoopGameWeapon::ACoopGameWeapon()
 {
@@ -15,6 +16,7 @@ ACoopGameWeapon::ACoopGameWeapon()
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
 
 	MuzzleSocketName = "MuzzleSocket";
+	TracerEndPointParameterName = "BeamEnd";
 }
 
 void ACoopGameWeapon::Tick(float DeltaTime)
@@ -38,6 +40,7 @@ void ACoopGameWeapon::Fire()
 
 		FVector Start = EyesLocation;
 		FVector End = Start + (EyesRotation.Vector() * 10000);
+		FVector TracerEndPoint = End;
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(WeaponOwner);
@@ -55,6 +58,8 @@ void ACoopGameWeapon::Fire()
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, HitResult.ImpactPoint, HitResult.ImpactNormal.Rotation());
 			}
+
+			TracerEndPoint = HitResult.ImpactPoint;
 		}
 
 		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
@@ -62,6 +67,16 @@ void ACoopGameWeapon::Fire()
 		if (MuzzleEffect)
 		{
 			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, SkeletalMeshComponent, MuzzleSocketName);
+		}
+
+		if (TracerEffect)
+		{
+			FVector MuzzleLocation = SkeletalMeshComponent->GetSocketLocation(MuzzleSocketName);
+			UParticleSystemComponent* TracerComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
+			if (TracerComponent)
+			{
+				TracerComponent->SetVectorParameter(TracerEndPointParameterName, TracerEndPoint);
+			}
 		}
 	}
 }
