@@ -31,8 +31,21 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	bool bWantsToZoom = false;
+	float DefaultFieldOfView = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float ZoomedFieldOfView = 65.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1f, ClampMax = 100.0f))
+	float ZoomSpeed = 10.0f;
+
 	void MoveForwardOrBackward(float AxisValue);
 	void MoveLeftOrRight(float AxisValue);
+
 	void BeginCrouch();
 	void EndCrouch();
+
+	void BeginZoom() { bWantsToZoom = true; }
+	void EndZoom() { bWantsToZoom = false; }
 };

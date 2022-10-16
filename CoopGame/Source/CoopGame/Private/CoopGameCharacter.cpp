@@ -25,6 +25,10 @@ ACoopGameCharacter::ACoopGameCharacter()
 void ACoopGameCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	float TargetFieldOfView = bWantsToZoom ? ZoomedFieldOfView : DefaultFieldOfView;
+	float NewFieldOfView = FMath::FInterpTo(CameraComponent->FieldOfView, TargetFieldOfView, DeltaTime, ZoomSpeed);
+	CameraComponent->SetFieldOfView(NewFieldOfView);
 }
 
 void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -41,6 +45,9 @@ void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &ThisClass::EndCrouch);
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ThisClass::Jump);
+
+	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Pressed, this, &ThisClass::BeginZoom);
+	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Released, this, &ThisClass::EndZoom);
 }
 
 void ACoopGameCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
@@ -58,6 +65,8 @@ void ACoopGameCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& O
 void ACoopGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DefaultFieldOfView = CameraComponent->FieldOfView;
 }
 
 void ACoopGameCharacter::MoveForwardOrBackward(float AxisValue)
