@@ -8,6 +8,13 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 
+static bool WeaponDebugDrawing = false;
+static FAutoConsoleVariableRef CVAR_WeaponDebugDrawing(
+	TEXT("COOP.WeaponDebugDrawing"),
+	WeaponDebugDrawing,
+	TEXT("Draw debug lines for weapons"),
+	ECVF_Cheat);
+
 ACoopGameWeapon::ACoopGameWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -62,7 +69,10 @@ void ACoopGameWeapon::Fire()
 			TracerEndPoint = HitResult.ImpactPoint;
 		}
 
-		DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
+		if (WeaponDebugDrawing)
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
+		}
 
 		if (MuzzleEffect)
 		{
