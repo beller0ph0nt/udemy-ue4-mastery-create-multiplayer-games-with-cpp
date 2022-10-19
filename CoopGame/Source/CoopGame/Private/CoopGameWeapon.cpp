@@ -17,23 +17,11 @@ static FAutoConsoleVariableRef CVAR_WeaponDebugDrawing(
 
 ACoopGameWeapon::ACoopGameWeapon()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
 	SkeletalMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshComponent"));
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerEndPointParameterName = "BeamEnd";
-}
-
-void ACoopGameWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void ACoopGameWeapon::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void ACoopGameWeapon::Fire()
@@ -74,19 +62,24 @@ void ACoopGameWeapon::Fire()
 			DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
 		}
 
-		if (MuzzleEffect)
-		{
-			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, SkeletalMeshComponent, MuzzleSocketName);
-		}
+		PlayFireEffects(TracerEndPoint);
+	}
+}
 
-		if (TracerEffect)
+void ACoopGameWeapon::PlayFireEffects(const FVector& TracerEndPoint)
+{
+	if (MuzzleEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, SkeletalMeshComponent, MuzzleSocketName);
+	}
+
+	if (TracerEffect)
+	{
+		FVector MuzzleLocation = SkeletalMeshComponent->GetSocketLocation(MuzzleSocketName);
+		UParticleSystemComponent* TracerComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
+		if (TracerComponent)
 		{
-			FVector MuzzleLocation = SkeletalMeshComponent->GetSocketLocation(MuzzleSocketName);
-			UParticleSystemComponent* TracerComponent = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
-			if (TracerComponent)
-			{
-				TracerComponent->SetVectorParameter(TracerEndPointParameterName, TracerEndPoint);
-			}
+			TracerComponent->SetVectorParameter(TracerEndPointParameterName, TracerEndPoint);
 		}
 	}
 }

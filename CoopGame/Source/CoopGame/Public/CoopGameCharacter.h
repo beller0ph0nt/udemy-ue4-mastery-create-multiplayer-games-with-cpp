@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CoopGameCharacter.generated.h"
 
+class ACoopGameWeapon;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -28,17 +29,25 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<ACoopGameWeapon> StarterWeapon;
+
 	virtual void BeginPlay() override;
 
 private:
 	bool bWantsToZoom = false;
 	float DefaultFieldOfView = 0.0f;
 
+	ACoopGameWeapon* CurrentWeapon;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	float ZoomedFieldOfView = 65.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1f, ClampMax = 100.0f))
 	float ZoomSpeed = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	FName WeaponSocketName;
 
 	void MoveForwardOrBackward(float AxisValue);
 	void MoveLeftOrRight(float AxisValue);
@@ -48,4 +57,6 @@ private:
 
 	void BeginZoom() { bWantsToZoom = true; }
 	void EndZoom() { bWantsToZoom = false; }
+
+	void Fire();
 };

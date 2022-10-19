@@ -3,6 +3,7 @@
 #include "CoopGameCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "CoopGameWeapon.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -20,6 +21,8 @@ ACoopGameCharacter::ACoopGameCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	WeaponSocketName = "WeaponSocket";
 }
 
 void ACoopGameCharacter::Tick(float DeltaTime)
@@ -48,6 +51,8 @@ void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Pressed, this, &ThisClass::BeginZoom);
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Released, this, &ThisClass::EndZoom);
+
+	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ThisClass::Fire);
 }
 
 void ACoopGameCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
@@ -67,6 +72,16 @@ void ACoopGameCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	DefaultFieldOfView = CameraComponent->FieldOfView;
+
+	FActorSpawnParameters Parameters;
+	Parameters.Owner = this;
+	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	CurrentWeapon = GetWorld()->SpawnActor<ACoopGameWeapon>(StarterWeapon, FVector::ZeroVector, FRotator::ZeroRotator, Parameters);
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+	}
 }
 
 void ACoopGameCharacter::MoveForwardOrBackward(float AxisValue)
@@ -87,4 +102,12 @@ void ACoopGameCharacter::BeginCrouch()
 void ACoopGameCharacter::EndCrouch()
 {
 	UnCrouch();
+}
+
+void ACoopGameCharacter::Fire()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Fire();
+	}
 }

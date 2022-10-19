@@ -18,7 +18,8 @@ class COOPGAME_API ACoopGameWeapon : public AActor
 public:	
 	ACoopGameWeapon();
 
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	virtual void Fire();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
@@ -42,8 +43,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
 
-	virtual void BeginPlay() override;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual void Fire();
+private:
+	void PlayFireEffects(const FVector& TracerEndPoint);
 };
