@@ -82,4 +82,14 @@ void ACoopGameWeapon::PlayFireEffects(const FVector& TracerEndPoint)
 			TracerComponent->SetVectorParameter(TracerEndPointParameterName, TracerEndPoint);
 		}
 	}
+
+	AActor* MyOwner = GetOwner();
+	if (MyOwner)
+	{
+		APlayerController* PlayerController = MyOwner->GetInstigatorController<APlayerController>();
+		if (PlayerController)
+		{
+			PlayerController->ClientStartCameraShake(FireCameraShake);
+		}
+	}
 }

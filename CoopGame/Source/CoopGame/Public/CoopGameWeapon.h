@@ -7,6 +7,7 @@
 #include "CoopGameWeapon.generated.h"
 
 class UDamageType;
+class UCameraShakeBase;
 class UParticleSystem;
 class USkeletalMeshComponent;
 
@@ -42,6 +43,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	UParticleSystem* TracerEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<UCameraShakeBase> FireCameraShake;
 
 private:
 	void PlayFireEffects(const FVector& TracerEndPoint);
