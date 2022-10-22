@@ -46,7 +46,7 @@ void ACoopGameWeapon::Fire()
 		QueryParams.bReturnPhysicalMaterial = true;
 
 		FHitResult HitResult;
-		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, TRACE_CHANNEL_WEAPON, QueryParams))
 		{
 			AActor* HitActor = HitResult.GetActor();
 			float Damage = 20.0;
