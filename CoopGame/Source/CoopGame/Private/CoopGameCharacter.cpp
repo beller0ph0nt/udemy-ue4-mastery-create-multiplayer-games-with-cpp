@@ -1,16 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "CoopGameCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "CoopGame.h"
 #include "CoopGameWeapon.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
-// Sets default values
 ACoopGameCharacter::ACoopGameCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
@@ -21,6 +19,8 @@ ACoopGameCharacter::ACoopGameCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECollisionResponse::ECR_Ignore);
 
 	WeaponSocketName = "WeaponSocket";
 }
