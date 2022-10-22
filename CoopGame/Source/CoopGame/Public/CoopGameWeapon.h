@@ -51,5 +51,7 @@ protected:
 	TSubclassOf<UCameraShakeBase> FireCameraShake;
 
 private:
+	float BaseDamage = 20.0f;
+
 	void PlayFireEffects(const FVector& TracerEndPoint);
 };

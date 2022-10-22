@@ -49,11 +49,16 @@ void ACoopGameWeapon::Fire()
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, TRACE_CHANNEL_WEAPON, QueryParams))
 		{
 			AActor* HitActor = HitResult.GetActor();
-			float Damage = 20.0;
-			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), this, DamageType);
-
 
 			EPhysicalSurface PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
+
+			float Damage = BaseDamage;
+			if (PhysicalSurface == SURFACE_FLESHVULNERABLE)
+			{
+				Damage *= 4.0f;
+			}
+
+			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), this, DamageType);
 
 			UParticleSystem* SelectedEffect = nullptr;
 			switch (PhysicalSurface)
