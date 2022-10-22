@@ -57,6 +57,7 @@ protected:
 
 private:
 	float BaseDamage = 20.0f;
+	float HeadShotDamageMultipier = 4.0f;
 
 	bool bIsFiring = false;
 	FTimerHandle DelayBetweenShotsTimerHandle;

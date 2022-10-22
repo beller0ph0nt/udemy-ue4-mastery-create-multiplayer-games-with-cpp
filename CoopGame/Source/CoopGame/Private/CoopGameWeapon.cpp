@@ -70,7 +70,7 @@ void ACoopGameWeapon::Fire()
 			float Damage = BaseDamage;
 			if (PhysicalSurface == SURFACE_FLESHVULNERABLE)
 			{
-				Damage *= 4.0f;
+				Damage *= HeadShotDamageMultipier;
 			}
 
 			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), this, DamageType);
