@@ -58,5 +58,6 @@ private:
 	void BeginZoom() { bWantsToZoom = true; }
 	void EndZoom() { bWantsToZoom = false; }
 
-	void Fire();
+	void StartFire();
+	void EndFire();
 };

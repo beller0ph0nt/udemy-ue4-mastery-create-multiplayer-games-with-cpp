@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "TimerManager.h"
 
 static bool WeaponDebugDrawing = false;
 static FAutoConsoleVariableRef CVAR_WeaponDebugDrawing(
@@ -24,6 +25,20 @@ ACoopGameWeapon::ACoopGameWeapon()
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerEndPointParameterName = "BeamEnd";
+}
+
+void ACoopGameWeapon::StartFire()
+{
+	bIsFiring = true;
+	if (!GetWorldTimerManager().IsTimerActive(DelayBetweenShotsTimerHandle))
+	{
+		GetWorldTimerManager().SetTimer(DelayBetweenShotsTimerHandle, this, &ThisClass::FireHandler, DelayBetweenShots, true, 0.0f);
+	}
+}
+
+void ACoopGameWeapon::EndFire()
+{
+	bIsFiring = false;
 }
 
 void ACoopGameWeapon::Fire()
@@ -114,5 +129,17 @@ void ACoopGameWeapon::PlayFireEffects(const FVector& TracerEndPoint)
 		{
 			PlayerController->ClientStartCameraShake(FireCameraShake);
 		}
+	}
+}
+
+void ACoopGameWeapon::FireHandler()
+{
+	if (bIsFiring)
+	{
+		Fire();
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(DelayBetweenShotsTimerHandle);
 	}
 }

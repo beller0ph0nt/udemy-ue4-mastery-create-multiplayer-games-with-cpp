@@ -19,8 +19,8 @@ class COOPGAME_API ACoopGameWeapon : public AActor
 public:	
 	ACoopGameWeapon();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual void Fire();
+	void StartFire();
+	void EndFire();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
@@ -50,8 +50,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<UCameraShakeBase> FireCameraShake;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float DelayBetweenShots = 0.5;
+
+	virtual void Fire();
+
 private:
 	float BaseDamage = 20.0f;
 
+	bool bIsFiring = false;
+	FTimerHandle DelayBetweenShotsTimerHandle;
+
 	void PlayFireEffects(const FVector& TracerEndPoint);
+	void FireHandler();
 };

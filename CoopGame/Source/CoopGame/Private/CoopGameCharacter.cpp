@@ -52,7 +52,8 @@ void ACoopGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Pressed, this, &ThisClass::BeginZoom);
 	PlayerInputComponent->BindAction(TEXT("Zoom"), IE_Released, this, &ThisClass::EndZoom);
 
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ThisClass::Fire);
+	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ThisClass::StartFire);
+	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &ThisClass::EndFire);
 }
 
 void ACoopGameCharacter::GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const
@@ -104,10 +105,18 @@ void ACoopGameCharacter::EndCrouch()
 	UnCrouch();
 }
 
-void ACoopGameCharacter::Fire()
+void ACoopGameCharacter::StartFire()
 {
 	if (CurrentWeapon)
 	{
-		CurrentWeapon->Fire();
+		CurrentWeapon->StartFire();
+	}
+}
+
+void ACoopGameCharacter::EndFire()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->EndFire();
 	}
 }
