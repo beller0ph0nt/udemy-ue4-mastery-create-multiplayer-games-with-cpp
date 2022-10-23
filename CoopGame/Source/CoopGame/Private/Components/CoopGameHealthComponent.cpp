@@ -31,4 +31,5 @@ void UCoopGameHealthComponent::TakeAnyDamageHandler(
 
 	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
 	UE_LOG(LogTemp, Log, TEXT("UCoopGameHealthComponent::TakeAnyDamageHandler Health: %f"), Health);
+	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
 }

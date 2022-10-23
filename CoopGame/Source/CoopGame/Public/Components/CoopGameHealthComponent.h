@@ -9,12 +9,23 @@
 class AController;
 class UDamageType;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature,
+	UCoopGameHealthComponent*, HealthComponent,
+	float, Health,
+	float, Damage,
+	const UDamageType*, DamageType,
+	AController*, InstigatedBy,
+	AActor*, DamageCauser);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPGAME_API UCoopGameHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
+	UPROPERTY(BlueprintAssignable, Category = "HealthComponent|Events")
+	FOnHealthChangedSignature OnHealthChanged;
+
 	UCoopGameHealthComponent();
 
 protected:
