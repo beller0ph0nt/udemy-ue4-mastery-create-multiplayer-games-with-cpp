@@ -32,7 +32,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "HealthComponent")
 	float Health;
 
-	UPROPERTY(EditDefaultsOnly, Category = "HealthComponent")
+	UPROPERTY(BlueprintReadOnly, Category = "HealthComponent")
 	float DefaultHealth = 100.0f;
 
 	virtual void BeginPlay() override;
