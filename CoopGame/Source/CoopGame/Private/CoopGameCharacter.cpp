@@ -2,6 +2,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/CoopGameHealthComponent.h"
 #include "CoopGame.h"
 #include "CoopGameWeapon.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -19,6 +20,8 @@ ACoopGameCharacter::ACoopGameCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	HealthComponent = CreateDefaultSubobject<UCoopGameHealthComponent>(TEXT("HealthComponent"));
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(TRACE_CHANNEL_WEAPON, ECollisionResponse::ECR_Ignore);
 
@@ -83,6 +86,8 @@ void ACoopGameCharacter::BeginPlay()
 	{
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
 	}
+
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
 }
 
 void ACoopGameCharacter::MoveForwardOrBackward(float AxisValue)
@@ -118,5 +123,23 @@ void ACoopGameCharacter::EndFire()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->EndFire();
+	}
+}
+
+void ACoopGameCharacter::OnHealthChanged(
+	UCoopGameHealthComponent* Component,
+	float Health,
+	float Damage,
+	const UDamageType* DamageType,
+	AController* InstigatedBy,
+	AActor* DamageCauser)
+{
+	if (Health <= 0.0f && !bIsDied)
+	{
+		bIsDied = true;
+		GetMovementComponent()->StopMovementImmediately();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(10.0f);
 	}
 }

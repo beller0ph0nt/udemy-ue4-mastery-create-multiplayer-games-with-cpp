@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
 #include "CoopGameCharacter.generated.h"
 
 class ACoopGameWeapon;
 class UCameraComponent;
+class UCoopGameHealthComponent;
 class USpringArmComponent;
 
 UCLASS()
@@ -29,8 +31,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UCoopGameHealthComponent* HealthComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ACoopGameWeapon> StarterWeapon;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool bIsDied = false;
 
 	virtual void BeginPlay() override;
 
@@ -60,4 +68,13 @@ private:
 
 	void StartFire();
 	void EndFire();
+
+	UFUNCTION()
+	void OnHealthChanged(
+		UCoopGameHealthComponent* Component,
+		float Health,
+		float Damage,
+		const UDamageType* DamageType,
+		AController* InstigatedBy,
+		AActor* DamageCauser);
 };
