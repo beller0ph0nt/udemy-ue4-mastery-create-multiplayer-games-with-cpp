@@ -46,6 +46,7 @@ private:
 	bool bWantsToZoom = false;
 	float DefaultFieldOfView = 0.0f;
 
+	UPROPERTY(Replicated)
 	ACoopGameWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")

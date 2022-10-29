@@ -7,6 +7,7 @@
 #include "CoopGameWeapon.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ACoopGameCharacter::ACoopGameCharacter()
 {
@@ -77,17 +78,20 @@ void ACoopGameCharacter::BeginPlay()
 
 	DefaultFieldOfView = CameraComponent->FieldOfView;
 
-	FActorSpawnParameters Parameters;
-	Parameters.Owner = this;
-	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	CurrentWeapon = GetWorld()->SpawnActor<ACoopGameWeapon>(StarterWeapon, FVector::ZeroVector, FRotator::ZeroRotator, Parameters);
-	if (CurrentWeapon)
-	{
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
-	}
-
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FActorSpawnParameters Parameters;
+		Parameters.Owner = this;
+		Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		CurrentWeapon = GetWorld()->SpawnActor<ACoopGameWeapon>(StarterWeapon, FVector::ZeroVector, FRotator::ZeroRotator, Parameters);
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocketName);
+		}
+	}
 }
 
 void ACoopGameCharacter::MoveForwardOrBackward(float AxisValue)
@@ -142,4 +146,11 @@ void ACoopGameCharacter::OnHealthChanged(
 		DetachFromControllerPendingDestroy();
 		SetLifeSpan(10.0f);
 	}
+}
+
+void ACoopGameCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACoopGameCharacter, CurrentWeapon);
 }

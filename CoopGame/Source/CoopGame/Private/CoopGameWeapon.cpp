@@ -25,6 +25,8 @@ ACoopGameWeapon::ACoopGameWeapon()
 
 	MuzzleSocketName = "MuzzleSocket";
 	TracerEndPointParameterName = "BeamEnd";
+
+	SetReplicates(true);
 }
 
 void ACoopGameWeapon::StartFire()
