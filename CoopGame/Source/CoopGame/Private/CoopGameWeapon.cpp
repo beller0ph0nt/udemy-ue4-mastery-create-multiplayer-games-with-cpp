@@ -45,6 +45,11 @@ void ACoopGameWeapon::EndFire()
 
 void ACoopGameWeapon::Fire()
 {
+	if (GetLocalRole() != ROLE_Authority)
+	{
+		ServerFire();
+	}
+
 	AActor* WeaponOwner = GetOwner();
 	if (WeaponOwner)
 	{
@@ -104,6 +109,16 @@ void ACoopGameWeapon::Fire()
 
 		PlayFireEffects(TracerEndPoint);
 	}
+}
+
+void ACoopGameWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool ACoopGameWeapon::ServerFire_Validate()
+{
+	return true;
 }
 
 void ACoopGameWeapon::PlayFireEffects(const FVector& TracerEndPoint)

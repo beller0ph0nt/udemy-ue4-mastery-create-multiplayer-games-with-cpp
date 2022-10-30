@@ -55,6 +55,9 @@ protected:
 
 	virtual void Fire();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
+
 private:
 	float BaseDamage = 20.0f;
 	float HeadShotDamageMultipier = 4.0f;
