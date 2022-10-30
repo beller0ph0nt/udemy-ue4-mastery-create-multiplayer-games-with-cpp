@@ -28,6 +28,8 @@ ACoopGameWeapon::ACoopGameWeapon()
 	TracerEndPointParameterName = "BeamEnd";
 
 	SetReplicates(true);
+	NetUpdateFrequency = 66.6f;
+	MinNetUpdateFrequency = 33.3f;
 }
 
 void ACoopGameWeapon::StartFire()
@@ -69,11 +71,12 @@ void ACoopGameWeapon::Fire()
 		QueryParams.bReturnPhysicalMaterial = true;
 
 		FHitResult HitResult;
+		EPhysicalSurface PhysicalSurface = SurfaceType_Default;
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, TRACE_CHANNEL_WEAPON, QueryParams))
 		{
 			AActor* HitActor = HitResult.GetActor();
 
-			EPhysicalSurface PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
+			PhysicalSurface = UPhysicalMaterial::DetermineSurfaceType(HitResult.PhysMaterial.Get());
 
 			float Damage = BaseDamage;
 			if (PhysicalSurface == SURFACE_FLESHVULNERABLE)
@@ -83,22 +86,7 @@ void ACoopGameWeapon::Fire()
 
 			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), this, DamageType);
 
-			UParticleSystem* SelectedEffect = nullptr;
-			switch (PhysicalSurface)
-			{
-			case SURFACE_FLESHDEFAULT:
-			case SURFACE_FLESHVULNERABLE:
-				SelectedEffect = FleshImpactEffect;
-				break;
-			default:
-				SelectedEffect = DefaultImpactEffect;
-				break;
-			}
-
-			if (SelectedEffect)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, HitResult.ImpactPoint, HitResult.ImpactNormal.Rotation());
-			}
+			PlayImpactEffects(PhysicalSurface, HitResult.ImpactPoint, HitResult.ImpactNormal);
 
 			TracerEndPoint = HitResult.ImpactPoint;
 		}
@@ -108,15 +96,16 @@ void ACoopGameWeapon::Fire()
 			DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
 		}
 
+		PlayFireEffects(TracerEndPoint);
+
 		if (GetLocalRole() == ROLE_Authority)
 		{
 			HitSync.ImpactPoint = TracerEndPoint;
+			HitSync.ImpactNormal = HitResult.ImpactNormal;
+			HitSync.PhysicalSurface = PhysicalSurface;
 		}
-
-		PlayFireEffects(TracerEndPoint);
 	}
 }
-
 
 void ACoopGameWeapon::ServerFire_Implementation()
 {
@@ -131,6 +120,7 @@ bool ACoopGameWeapon::ServerFire_Validate()
 void ACoopGameWeapon::OnRep_HitSync()
 {
 	PlayFireEffects(HitSync.ImpactPoint);
+	PlayImpactEffects(HitSync.PhysicalSurface, HitSync.ImpactPoint, HitSync.ImpactNormal);
 }
 
 void ACoopGameWeapon::PlayFireEffects(const FVector& TracerEndPoint)
@@ -158,6 +148,26 @@ void ACoopGameWeapon::PlayFireEffects(const FVector& TracerEndPoint)
 		{
 			PlayerController->ClientStartCameraShake(FireCameraShake);
 		}
+	}
+}
+
+void ACoopGameWeapon::PlayImpactEffects(EPhysicalSurface PhysicalSurface, const FVector& ImpactPoint, const FVector& ImpactNormal)
+{
+	UParticleSystem* SelectedEffect = nullptr;
+	switch (PhysicalSurface)
+	{
+	case SURFACE_FLESHDEFAULT:
+	case SURFACE_FLESHVULNERABLE:
+		SelectedEffect = FleshImpactEffect;
+		break;
+	default:
+		SelectedEffect = DefaultImpactEffect;
+		break;
+	}
+
+	if (SelectedEffect)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ImpactNormal.Rotation());
 	}
 }
 

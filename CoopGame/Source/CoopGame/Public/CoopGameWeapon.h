@@ -20,6 +20,13 @@ struct FHitSync
 public:
 	UPROPERTY()
 	FVector_NetQuantize ImpactPoint;
+
+	UPROPERTY()
+	FVector_NetQuantizeNormal ImpactNormal;
+
+	UPROPERTY()
+	TEnumAsByte<EPhysicalSurface> PhysicalSurface;
+
 };
 
 UCLASS()
@@ -83,5 +90,6 @@ private:
 	FTimerHandle DelayBetweenShotsTimerHandle;
 
 	void PlayFireEffects(const FVector& TracerEndPoint);
+	void PlayImpactEffects(EPhysicalSurface PhysicalSurface, const FVector& ImpactPoint, const FVector& ImpactNormal);
 	void FireHandler();
 };
