@@ -31,13 +31,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCoopGameHealthComponent* HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ACoopGameWeapon> StarterWeapon;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bIsDied = false;
 
 	virtual void BeginPlay() override;

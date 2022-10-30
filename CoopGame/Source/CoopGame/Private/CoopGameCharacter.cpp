@@ -153,4 +153,5 @@ void ACoopGameCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ACoopGameCharacter, CurrentWeapon);
+	DOREPLIFETIME(ACoopGameCharacter, bIsDied);
 }
