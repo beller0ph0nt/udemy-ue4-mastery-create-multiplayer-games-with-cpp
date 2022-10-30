@@ -6,6 +6,7 @@
 #include "CoopGame.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
@@ -107,9 +108,15 @@ void ACoopGameWeapon::Fire()
 			DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 1.0f, 0.0f, 1.0f);
 		}
 
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			HitSync.ImpactPoint = TracerEndPoint;
+		}
+
 		PlayFireEffects(TracerEndPoint);
 	}
 }
+
 
 void ACoopGameWeapon::ServerFire_Implementation()
 {
@@ -119,6 +126,11 @@ void ACoopGameWeapon::ServerFire_Implementation()
 bool ACoopGameWeapon::ServerFire_Validate()
 {
 	return true;
+}
+
+void ACoopGameWeapon::OnRep_HitSync()
+{
+	PlayFireEffects(HitSync.ImpactPoint);
 }
 
 void ACoopGameWeapon::PlayFireEffects(const FVector& TracerEndPoint)
@@ -159,4 +171,11 @@ void ACoopGameWeapon::FireHandler()
 	{
 		GetWorldTimerManager().ClearTimer(DelayBetweenShotsTimerHandle);
 	}
+}
+
+void ACoopGameWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ACoopGameWeapon, HitSync, COND_SkipOwner);
 }

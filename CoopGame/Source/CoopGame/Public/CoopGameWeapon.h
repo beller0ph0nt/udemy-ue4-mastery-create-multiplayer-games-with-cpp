@@ -4,12 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
 #include "CoopGameWeapon.generated.h"
 
 class UDamageType;
 class UCameraShakeBase;
 class UParticleSystem;
 class USkeletalMeshComponent;
+
+USTRUCT()
+struct FHitSync
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	FVector_NetQuantize ImpactPoint;
+};
 
 UCLASS()
 class COOPGAME_API ACoopGameWeapon : public AActor
@@ -53,10 +64,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float DelayBetweenShots = 0.5;
 
+	UPROPERTY(ReplicatedUsing = OnRep_HitSync)
+	FHitSync HitSync;
+
 	virtual void Fire();
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
+
+	UFUNCTION()
+	void OnRep_HitSync();
 
 private:
 	float BaseDamage = 20.0f;
