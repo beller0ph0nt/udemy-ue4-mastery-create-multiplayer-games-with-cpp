@@ -9,13 +9,23 @@
 class AController;
 class UDamageType;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChangedSignature,
 	UCoopGameHealthComponent*, HealthComponent,
 	float, Health,
-	float, Damage,
-	const UDamageType*, DamageType,
-	AController*, InstigatedBy,
-	AActor*, DamageCauser);
+	float, Damage);
+
+USTRUCT()
+struct FHealthComponentSync
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	float Health;
+
+	UPROPERTY()
+	float Damage;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOPGAME_API UCoopGameHealthComponent : public UActorComponent
@@ -29,13 +39,16 @@ public:
 	UCoopGameHealthComponent();
 
 protected:
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "HealthComponent")
-	float Health;
+	UPROPERTY(ReplicatedUsing = OnRep_HealthComponentSync)
+	FHealthComponentSync HealthComponentSync;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HealthComponent")
 	float DefaultHealth = 100.0f;
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnRep_HealthComponentSync();
 
 private:
 	UFUNCTION()

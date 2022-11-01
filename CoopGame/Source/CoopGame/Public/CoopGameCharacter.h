@@ -71,11 +71,5 @@ private:
 	void EndFire();
 
 	UFUNCTION()
-	void OnHealthChanged(
-		UCoopGameHealthComponent* Component,
-		float Health,
-		float Damage,
-		const UDamageType* DamageType,
-		AController* InstigatedBy,
-		AActor* DamageCauser);
+	void OnHealthChanged(UCoopGameHealthComponent* Component, float Health, float Damage);
 };

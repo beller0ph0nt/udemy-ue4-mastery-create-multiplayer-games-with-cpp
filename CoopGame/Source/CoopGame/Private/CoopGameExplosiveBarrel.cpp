@@ -3,6 +3,7 @@
 #include "Components/CoopGameHealthComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 #include "Particles/ParticleSystem.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
@@ -22,30 +23,51 @@ ACoopGameExplosiveBarrel::ACoopGameExplosiveBarrel()
 	RadialForceComponent->SetupAttachment(RootComponent);
 
 	HealthComponent = CreateDefaultSubobject<UCoopGameHealthComponent>(TEXT("HealthComponent"));
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
 }
 
 void ACoopGameExplosiveBarrel::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HealthComponent->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		HealthComponent->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
+	}
 }
 
-void ACoopGameExplosiveBarrel::OnHealthChanged(
-	UCoopGameHealthComponent* Component,
-	float Health,
-	float Damage,
-	const UDamageType* DamageType,
-	AController* InstigatedBy,
-	AActor* DamageCauser)
+void ACoopGameExplosiveBarrel::OnHealthChanged(UCoopGameHealthComponent* Component,	float Health, float Damage)
 {
-	if (Health <= 0.0f && !bIsExploaded)
+	if (Health <= 0.0f && !bIsExploded)
 	{
-		bIsExploaded = true;
+		bIsExploded = true;
 
-		UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
-		MeshComponent->AddImpulse(FVector::UpVector * ExplodeImpulse);
-		MeshComponent->SetMaterial(0, ExplodedMaterial);
-		RadialForceComponent->FireImpulse();
+		ApplyExplodePhysics();
 	}
+}
+
+void ACoopGameExplosiveBarrel::OnRep_bIsExploded()
+{
+	PlayExplodeEffects();
+}
+
+void ACoopGameExplosiveBarrel::PlayExplodeEffects()
+{
+	UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
+	MeshComponent->SetMaterial(0, ExplodedMaterial);
+}
+
+void ACoopGameExplosiveBarrel::ApplyExplodePhysics()
+{
+	MeshComponent->AddImpulse(FVector::UpVector * ExplodeImpulse);
+	RadialForceComponent->FireImpulse();
+}
+
+void ACoopGameExplosiveBarrel::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACoopGameExplosiveBarrel, bIsExploded);
 }

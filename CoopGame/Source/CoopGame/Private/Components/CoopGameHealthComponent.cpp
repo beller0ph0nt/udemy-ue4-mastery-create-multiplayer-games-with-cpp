@@ -11,7 +11,8 @@ void UCoopGameHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = DefaultHealth;
+	HealthComponentSync.Health = DefaultHealth;
+	HealthComponentSync.Damage = 0;
 
 	if (GetOwnerRole() == ROLE_Authority)
 	{
@@ -21,6 +22,12 @@ void UCoopGameHealthComponent::BeginPlay()
 			Owner->OnTakeAnyDamage.AddDynamic(this, &ThisClass::TakeAnyDamageHandler);
 		}
 	}
+}
+
+void UCoopGameHealthComponent::OnRep_HealthComponentSync()
+{
+	UE_LOG(LogTemp, Log, TEXT("UCoopGameHealthComponent::TakeAnyDamageHandler Health: %f"), HealthComponentSync.Health);
+	OnHealthChanged.Broadcast(this, HealthComponentSync.Health, HealthComponentSync.Damage);
 }
 
 void UCoopGameHealthComponent::TakeAnyDamageHandler(
@@ -35,14 +42,15 @@ void UCoopGameHealthComponent::TakeAnyDamageHandler(
 		return;
 	}
 
-	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
-	UE_LOG(LogTemp, Log, TEXT("UCoopGameHealthComponent::TakeAnyDamageHandler Health: %f"), Health);
-	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
+	HealthComponentSync.Health = FMath::Clamp(HealthComponentSync.Health - Damage, 0.0f, DefaultHealth);
+	HealthComponentSync.Damage = Damage;
+
+	OnRep_HealthComponentSync();
 }
 
 void UCoopGameHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UCoopGameHealthComponent, Health);
+	DOREPLIFETIME(UCoopGameHealthComponent, HealthComponentSync);
 }

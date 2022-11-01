@@ -20,13 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnHealthChanged(
-		UCoopGameHealthComponent* Component,
-		float Health,
-		float Damage,
-		const UDamageType* DamageType,
-		AController* InstigatedBy,
-		AActor* DamageCauser);
+	void OnHealthChanged(UCoopGameHealthComponent* Component, float Health, float Damage);
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
@@ -46,6 +40,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Explode")
 	float ExplodeImpulse = 100000.0f;
 
+	UPROPERTY(ReplicatedUsing = OnRep_bIsExploded)
+	bool bIsExploded = false;
+
+	UFUNCTION()
+	void OnRep_bIsExploded();
 private:
-	bool bIsExploaded = false;
+
+	UFUNCTION()
+	void PlayExplodeEffects();
+
+	UFUNCTION()
+	void ApplyExplodePhysics();
 };

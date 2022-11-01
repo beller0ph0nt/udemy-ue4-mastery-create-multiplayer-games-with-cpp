@@ -130,13 +130,7 @@ void ACoopGameCharacter::EndFire()
 	}
 }
 
-void ACoopGameCharacter::OnHealthChanged(
-	UCoopGameHealthComponent* Component,
-	float Health,
-	float Damage,
-	const UDamageType* DamageType,
-	AController* InstigatedBy,
-	AActor* DamageCauser)
+void ACoopGameCharacter::OnHealthChanged(UCoopGameHealthComponent* Component, float Health, float Damage)
 {
 	if (Health <= 0.0f && !bIsDied)
 	{
