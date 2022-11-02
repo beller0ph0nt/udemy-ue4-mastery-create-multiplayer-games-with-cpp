@@ -23,6 +23,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	float MovementForce = 1000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	bool bAccelerationChange = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	float RequiredDistanceToTarget = 100.0f;
+
 private:
 	FVector GetNextPathPoint();
+
+	FVector NextPathPoint;
+	double DisableNavigationDistance = 10.0;
 };
