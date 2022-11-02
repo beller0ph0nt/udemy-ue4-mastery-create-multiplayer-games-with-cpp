@@ -22,4 +22,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
+
+private:
+	FVector GetNextPathPoint();
 };
