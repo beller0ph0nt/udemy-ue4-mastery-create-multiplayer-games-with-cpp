@@ -10,7 +10,7 @@ class AController;
 class UDamageType;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChangedSignature,
-	UCoopGameHealthComponent*, HealthComponent,
+	UCoopGameHealthComponent*, OwnerHealthComponent,
 	float, Health,
 	float, Damage);
 

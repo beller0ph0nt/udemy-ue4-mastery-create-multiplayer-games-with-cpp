@@ -1,5 +1,6 @@
 #include "AI/CoopGameTrackerBot.h"
 
+#include "Components/CoopGameHealthComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "CoopGameCharacter.h"
 #include "DrawDebugHelpers.h"
@@ -16,6 +17,9 @@ ACoopGameTrackerBot::ACoopGameTrackerBot()
 	MeshComponent->SetCanEverAffectNavigation(false);
 	MeshComponent->SetSimulatePhysics(true);
 	RootComponent = MeshComponent;
+
+	HealthComponent = CreateDefaultSubobject<UCoopGameHealthComponent>(TEXT("HealthComponent"));
+	HealthComponent->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
 }
 
 void ACoopGameTrackerBot::Tick(float DeltaTime)
@@ -59,4 +63,12 @@ FVector ACoopGameTrackerBot::GetNextPathPoint()
 	check(NavigationPath);
 
 	return 1 < NavigationPath->PathPoints.Num() ? NavigationPath->PathPoints[1] : GetActorLocation();
+}
+
+void ACoopGameTrackerBot::OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage)
+{
+	// TODO: Explode
+	// TODO: Pulse material
+
+	UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
 }

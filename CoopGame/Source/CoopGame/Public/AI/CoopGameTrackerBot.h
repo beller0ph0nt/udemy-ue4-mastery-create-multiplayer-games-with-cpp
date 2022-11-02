@@ -5,6 +5,7 @@
 
 #include "CoopGameTrackerBot.generated.h"
 
+class UCoopGameHealthComponent;
 class UStaticMeshComponent;
 
 UCLASS()
@@ -23,6 +24,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UCoopGameHealthComponent* HealthComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float MovementForce = 1000.0f;
 
@@ -34,6 +38,9 @@ protected:
 
 private:
 	FVector GetNextPathPoint();
+
+	UFUNCTION()
+	void OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage);
 
 	FVector NextPathPoint;
 	double DisableNavigationDistance = 10.0;
