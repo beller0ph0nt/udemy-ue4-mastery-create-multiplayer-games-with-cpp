@@ -52,6 +52,7 @@ void ACoopGameTrackerBot::BeginPlay()
 	Super::BeginPlay();
 
 	NextPathPoint = GetNextPathPoint();
+	MaterialInstanceDynamic = MeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComponent->GetMaterial(0));
 }
 
 FVector ACoopGameTrackerBot::GetNextPathPoint()
@@ -68,7 +69,11 @@ FVector ACoopGameTrackerBot::GetNextPathPoint()
 void ACoopGameTrackerBot::OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage)
 {
 	// TODO: Explode
-	// TODO: Pulse material
+
+	if (MaterialInstanceDynamic)
+	{
+		MaterialInstanceDynamic->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
 }

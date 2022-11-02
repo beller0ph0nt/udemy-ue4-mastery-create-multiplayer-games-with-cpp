@@ -6,6 +6,7 @@
 #include "CoopGameTrackerBot.generated.h"
 
 class UCoopGameHealthComponent;
+class UMaterialInstanceDynamic;
 class UStaticMeshComponent;
 
 UCLASS()
@@ -35,6 +36,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float RequiredDistanceToTarget = 100.0f;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic* MaterialInstanceDynamic;
 
 private:
 	FVector GetNextPathPoint();
