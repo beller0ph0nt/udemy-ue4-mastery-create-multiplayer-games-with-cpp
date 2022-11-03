@@ -9,6 +9,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
+#include "Sound/SoundCue.h"
 
 ACoopGameTrackerBot::ACoopGameTrackerBot()
 {
@@ -57,7 +58,7 @@ void ACoopGameTrackerBot::Tick(float DeltaTime)
 
 void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	if (GetWorldTimerManager().IsTimerActive(SelfExplosionTimerHandler))
+	if (GetWorldTimerManager().IsTimerActive(SelfDestructTimerHandler))
 	{
 		return;
 	}
@@ -65,9 +66,11 @@ void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 	ACoopGameCharacter* PlayerPawn = Cast<ACoopGameCharacter>(OtherActor);
 	if (PlayerPawn)
 	{
-		GetWorldTimerManager().SetTimer(SelfExplosionTimerHandler,
+		GetWorldTimerManager().SetTimer(SelfDestructTimerHandler,
 			[this]() { UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), this, nullptr); },
-			SelfExplosionTimerRate, true, 0.0f);
+			SelfDestructTimerRate, true, 0.0f);
+
+		UGameplayStatics::SpawnSoundAttached(StartSelfDestructSound, RootComponent);
 	}
 }
 
@@ -98,6 +101,7 @@ void ACoopGameTrackerBot::SelfExplode()
 	}
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
 
 	TArray<AActor*> IgnoreActors{ this };
 	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true);

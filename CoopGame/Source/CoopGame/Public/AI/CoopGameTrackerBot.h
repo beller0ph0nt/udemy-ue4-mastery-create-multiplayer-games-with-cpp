@@ -9,6 +9,7 @@ class UCoopGameHealthComponent;
 class UMaterialInstanceDynamic;
 class UParticleSystem;
 class USphereComponent;
+class USoundCue;
 class UStaticMeshComponent;
 
 UCLASS()
@@ -55,6 +56,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float ExplosionRadius = 200.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot|Sounds")
+	USoundCue* StartSelfDestructSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot|Sounds")
+	USoundCue* ExplosionSound;
+
 private:
 	FVector GetNextPathPoint();
 	void SelfExplode();
@@ -65,6 +72,6 @@ private:
 	FVector NextPathPoint;
 	double DisableNavigationDistance = 10.0;
 	bool bIsExploded = false;
-	FTimerHandle SelfExplosionTimerHandler;
-	float SelfExplosionTimerRate = 0.5f;
+	FTimerHandle SelfDestructTimerHandler;
+	float SelfDestructTimerRate = 0.5f;
 };
