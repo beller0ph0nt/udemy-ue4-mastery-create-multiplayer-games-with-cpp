@@ -66,14 +66,33 @@ FVector ACoopGameTrackerBot::GetNextPathPoint()
 	return 1 < NavigationPath->PathPoints.Num() ? NavigationPath->PathPoints[1] : GetActorLocation();
 }
 
+void ACoopGameTrackerBot::SelfExplode()
+{
+	if (bIsExploded)
+	{
+		return;
+	}
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+
+	TArray<AActor*> IgnoreActors{ this };
+	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 6.0f, 0, 1.0f);
+
+	Destroy();
+}
+
 void ACoopGameTrackerBot::OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage)
 {
-	// TODO: Explode
-
 	if (MaterialInstanceDynamic)
 	{
 		MaterialInstanceDynamic->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
+
+	if (Health <= 0.0f)
+	{
+		SelfExplode();
+	}
 }

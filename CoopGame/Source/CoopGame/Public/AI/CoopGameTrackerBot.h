@@ -7,6 +7,7 @@
 
 class UCoopGameHealthComponent;
 class UMaterialInstanceDynamic;
+class UParticleSystem;
 class UStaticMeshComponent;
 
 UCLASS()
@@ -40,12 +41,23 @@ protected:
 	UPROPERTY()
 	UMaterialInstanceDynamic* MaterialInstanceDynamic;
 
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	UParticleSystem* ExplosionEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	float ExplosionDamage = 40.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	float ExplosionRadius = 200.0f;
+
 private:
 	FVector GetNextPathPoint();
+	void SelfExplode();
 
 	UFUNCTION()
 	void OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage);
 
 	FVector NextPathPoint;
 	double DisableNavigationDistance = 10.0;
+	bool bIsExploded = false;
 };
