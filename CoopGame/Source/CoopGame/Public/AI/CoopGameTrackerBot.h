@@ -8,6 +8,7 @@
 class UCoopGameHealthComponent;
 class UMaterialInstanceDynamic;
 class UParticleSystem;
+class USphereComponent;
 class UStaticMeshComponent;
 
 UCLASS()
@@ -19,6 +20,7 @@ public:
 	ACoopGameTrackerBot();
 
 	virtual void Tick(float DeltaTime) override;
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -28,6 +30,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	UCoopGameHealthComponent* HealthComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	USphereComponent* SphereComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float MovementForce = 1000.0f;
@@ -60,4 +65,6 @@ private:
 	FVector NextPathPoint;
 	double DisableNavigationDistance = 10.0;
 	bool bIsExploded = false;
+	FTimerHandle SelfExplosionTimerHandler;
+	float SelfExplosionTimerRate = 0.5f;
 };

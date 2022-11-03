@@ -1,6 +1,7 @@
 #include "AI/CoopGameTrackerBot.h"
 
 #include "Components/CoopGameHealthComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "CoopGameCharacter.h"
 #include "DrawDebugHelpers.h"
@@ -17,6 +18,13 @@ ACoopGameTrackerBot::ACoopGameTrackerBot()
 	MeshComponent->SetCanEverAffectNavigation(false);
 	MeshComponent->SetSimulatePhysics(true);
 	RootComponent = MeshComponent;
+
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	SphereComponent->SetSphereRadius(ExplosionRadius);
+	SphereComponent->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
+	SphereComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	SphereComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	SphereComponent->SetupAttachment(RootComponent);
 
 	HealthComponent = CreateDefaultSubobject<UCoopGameHealthComponent>(TEXT("HealthComponent"));
 	HealthComponent->OnHealthChanged.AddDynamic(this, &ThisClass::OnHealthChanged);
@@ -45,6 +53,22 @@ void ACoopGameTrackerBot::Tick(float DeltaTime)
 	}
 
 	DrawDebugSphere(GetWorld(), NextPathPoint, 20.0f, 12, FColor::Yellow, false, 0.0f);
+}
+
+void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	if (GetWorldTimerManager().IsTimerActive(SelfExplosionTimerHandler))
+	{
+		return;
+	}
+
+	ACoopGameCharacter* PlayerPawn = Cast<ACoopGameCharacter>(OtherActor);
+	if (PlayerPawn)
+	{
+		GetWorldTimerManager().SetTimer(SelfExplosionTimerHandler,
+			[this]() { UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), this, nullptr); },
+			SelfExplosionTimerRate, true, 0.0f);
+	}
 }
 
 void ACoopGameTrackerBot::BeginPlay()
