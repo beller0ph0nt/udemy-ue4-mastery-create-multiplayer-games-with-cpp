@@ -35,25 +35,28 @@ void ACoopGameTrackerBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	float DistanceToTarget = (NextPathPoint - GetActorLocation()).Size();
-	if (DistanceToTarget <= RequiredDistanceToTarget)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		NextPathPoint = GetNextPathPoint();
+		float DistanceToTarget = (NextPathPoint - GetActorLocation()).Size();
+		if (DistanceToTarget <= RequiredDistanceToTarget)
+		{
+			NextPathPoint = GetNextPathPoint();
 
-		DrawDebugString(GetWorld(), GetActorLocation(), TEXT("Target reached!!!"));
+			DrawDebugString(GetWorld(), GetActorLocation(), TEXT("Target reached!!!"));
+		}
+		else
+		{
+			FVector Force = NextPathPoint - GetActorLocation();
+			Force.Normalize();
+			Force *= MovementForce;
+
+			MeshComponent->AddForce(Force, NAME_None, bAccelerationChange);
+
+			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + Force, Force.Size(), FColor::Yellow, false, 0.0f);
+		}
+
+		DrawDebugSphere(GetWorld(), NextPathPoint, 20.0f, 12, FColor::Yellow, false, 0.0f);
 	}
-	else
-	{
-		FVector Force = NextPathPoint - GetActorLocation();
-		Force.Normalize();
-		Force *= MovementForce;
-
-		MeshComponent->AddForce(Force, NAME_None, bAccelerationChange);
-
-		DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + Force, Force.Size(), FColor::Yellow, false, 0.0f);
-	}
-
-	DrawDebugSphere(GetWorld(), NextPathPoint, 20.0f, 12, FColor::Yellow, false, 0.0f);
 }
 
 void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -78,7 +81,11 @@ void ACoopGameTrackerBot::BeginPlay()
 {
 	Super::BeginPlay();
 
-	NextPathPoint = GetNextPathPoint();
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		NextPathPoint = GetNextPathPoint();
+	}
+
 	MaterialInstanceDynamic = MeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComponent->GetMaterial(0));
 }
 
@@ -95,32 +102,38 @@ FVector ACoopGameTrackerBot::GetNextPathPoint()
 
 void ACoopGameTrackerBot::SelfExplode()
 {
-	if (bIsExploded)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		return;
+		if (bIsExploded)
+		{
+			return;
+		}
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
+
+		TArray<AActor*> IgnoreActors{ this };
+		UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true);
+		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 6.0f, 0, 1.0f);
+
+		Destroy();
 	}
-
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
-	UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
-
-	TArray<AActor*> IgnoreActors{ this };
-	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true);
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 6.0f, 0, 1.0f);
-
-	Destroy();
 }
 
 void ACoopGameTrackerBot::OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage)
 {
-	if (MaterialInstanceDynamic)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		MaterialInstanceDynamic->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
-	}
+		if (MaterialInstanceDynamic)
+		{
+			MaterialInstanceDynamic->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
+		}
 
-	UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
+		UE_LOG(LogTemp, Log, TEXT("Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
 
-	if (Health <= 0.0f)
-	{
-		SelfExplode();
+		if (Health <= 0.0f)
+		{
+			SelfExplode();
+		}
 	}
 }
