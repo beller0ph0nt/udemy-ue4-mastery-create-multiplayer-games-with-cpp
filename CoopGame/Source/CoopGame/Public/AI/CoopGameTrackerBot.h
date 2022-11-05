@@ -69,9 +69,24 @@ private:
 	UFUNCTION()
 	void OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage);
 
+	UFUNCTION()
+	void HandleNewPlayer(APlayerController* NewPlayer);
+
+	UFUNCTION()
+	void OnRep_bSelfDestructionStarted();
+
+	UFUNCTION()
+	void OnRep_bIsExploded();
+	
+	const float ClientsSynchronizationTimeSpanBeforeBotDestroy = 1.0f;
+
 	FVector NextPathPoint;
 	double DisableNavigationDistance = 10.0;
-	bool bIsExploded = false;
 	FTimerHandle SelfDestructTimerHandler;
 	float SelfDestructTimerRate = 0.5f;
+	bool bAtLeastOnePlayerInTheGame = false;
+	bool bSelfDestructionStarted = false;
+
+	UPROPERTY(ReplicatedUsing = OnRep_bIsExploded)
+	bool bIsExploded = false;
 };
