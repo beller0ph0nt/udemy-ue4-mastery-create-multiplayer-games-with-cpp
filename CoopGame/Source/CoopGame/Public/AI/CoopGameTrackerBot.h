@@ -22,6 +22,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -65,6 +66,7 @@ protected:
 private:
 	FVector GetNextPathPoint();
 	void SelfExplode();
+	void UpdateDamagePowerLevelBoost();
 
 	UFUNCTION()
 	void OnHealthChanged(UCoopGameHealthComponent* OwnerHealthComponent, float Health, float Damage);
@@ -79,6 +81,8 @@ private:
 	void OnRep_bIsExploded();
 	
 	const float ClientsSynchronizationTimeSpanBeforeBotDestroy = 1.0f;
+	const float DamageBoostPerBot = 10.0f;
+	const float MaxDamageBoost = 40.0f;
 
 	FVector NextPathPoint;
 	double DisableNavigationDistance = 10.0;
@@ -86,6 +90,8 @@ private:
 	float SelfDestructTimerRate = 0.5f;
 	bool bAtLeastOnePlayerInTheGame = false;
 	bool bSelfDestructionStarted = false;
+	int BotsCounter = 0;
+	float DamageBoost = 0.0f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_bIsExploded)
 	bool bIsExploded = false;

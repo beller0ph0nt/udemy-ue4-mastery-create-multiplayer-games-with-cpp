@@ -41,7 +41,7 @@ protected:
 	float ExplodeImpulse = 100000.0f;
 
 	UPROPERTY(ReplicatedUsing = OnRep_bIsExploded)
-	bool bIsExploded = false;
+	bool bExploded = false;
 
 	UFUNCTION()
 	void OnRep_bIsExploded();

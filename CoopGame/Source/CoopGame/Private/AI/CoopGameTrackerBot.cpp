@@ -21,6 +21,7 @@ ACoopGameTrackerBot::ACoopGameTrackerBot()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	MeshComponent->SetCanEverAffectNavigation(false);
 	MeshComponent->SetSimulatePhysics(true);
+	MeshComponent->SetCollisionObjectType(ECC_Pawn);
 	RootComponent = MeshComponent;
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
@@ -66,6 +67,13 @@ void ACoopGameTrackerBot::Tick(float DeltaTime)
 
 void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
+	ACoopGameTrackerBot* OtherTrackerBot = Cast<ACoopGameTrackerBot>(OtherActor);
+	if (OtherTrackerBot)
+	{
+		BotsCounter++;
+		UpdateDamagePowerLevelBoost();
+	}
+
 	if (bSelfDestructionStarted)
 	{
 		return;
@@ -83,6 +91,16 @@ void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 				[this]() { UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), this, nullptr); },
 				SelfDestructTimerRate, true, 0.0f);
 		}
+	}
+}
+
+void ACoopGameTrackerBot::NotifyActorEndOverlap(AActor* OtherActor)
+{
+	ACoopGameTrackerBot* OtherTrackerBot = Cast<ACoopGameTrackerBot>(OtherActor);
+	if (OtherTrackerBot)
+	{
+		BotsCounter--;
+		UpdateDamagePowerLevelBoost();
 	}
 }
 
@@ -110,12 +128,16 @@ FVector ACoopGameTrackerBot::GetNextPathPoint()
 {
 	// TODO: Just for testing purposes. Will not work in multiplayer.
 	ACoopGameCharacter* Character = Cast<ACoopGameCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
-	check(Character);
+	//check(Character);
+	if (Character)
+	{
+		UNavigationPath* NavigationPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), Character);
+		check(NavigationPath);
 
-	UNavigationPath* NavigationPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), Character);
-	check(NavigationPath);
+		return 1 < NavigationPath->PathPoints.Num() ? NavigationPath->PathPoints[1] : GetActorLocation();
+	}
 
-	return 1 < NavigationPath->PathPoints.Num() ? NavigationPath->PathPoints[1] : GetActorLocation();
+	return {};
 }
 
 void ACoopGameTrackerBot::SelfExplode()
@@ -133,9 +155,20 @@ void ACoopGameTrackerBot::SelfExplode()
 		GetWorldTimerManager().ClearTimer(SelfDestructTimerHandler);
 
 		TArray<AActor*> IgnoreActors{ this };
-		UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true);
+		UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage + DamageBoost, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true);
 
 		SetLifeSpan(ClientsSynchronizationTimeSpanBeforeBotDestroy);
+	}
+}
+
+void ACoopGameTrackerBot::UpdateDamagePowerLevelBoost()
+{
+	DamageBoost = FMath::Clamp(BotsCounter * DamageBoostPerBot, 0.0f, MaxDamageBoost);
+	UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("DamageBoost = %f"), DamageBoost));
+
+	if (MaterialInstanceDynamic)
+	{
+		MaterialInstanceDynamic->SetScalarParameterValue("DamageBoostAlpha", DamageBoost / MaxDamageBoost);
 	}
 }
 

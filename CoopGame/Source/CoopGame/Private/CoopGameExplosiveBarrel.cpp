@@ -40,17 +40,24 @@ void ACoopGameExplosiveBarrel::BeginPlay()
 
 void ACoopGameExplosiveBarrel::OnHealthChanged(UCoopGameHealthComponent* Component,	float Health, float Damage)
 {
-	if (Health <= 0.0f && !bIsExploded)
+	if (Health <= 0.0f && !bExploded)
 	{
-		bIsExploded = true;
+		if (GetLocalRole() == ROLE_Authority)
+		{
+			bExploded = true;
+			OnRep_bIsExploded();
 
-		ApplyExplodePhysics();
+			ApplyExplodePhysics();
+		}
 	}
 }
 
 void ACoopGameExplosiveBarrel::OnRep_bIsExploded()
 {
-	PlayExplodeEffects();
+	if (!IsNetMode(NM_DedicatedServer))
+	{
+		PlayExplodeEffects();
+	}
 }
 
 void ACoopGameExplosiveBarrel::PlayExplodeEffects()
@@ -69,5 +76,5 @@ void ACoopGameExplosiveBarrel::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ACoopGameExplosiveBarrel, bIsExploded);
+	DOREPLIFETIME(ACoopGameExplosiveBarrel, bExploded);
 }
