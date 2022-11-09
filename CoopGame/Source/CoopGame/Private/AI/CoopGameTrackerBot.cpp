@@ -67,6 +67,8 @@ void ACoopGameTrackerBot::Tick(float DeltaTime)
 
 void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 {
+	Super::NotifyActorBeginOverlap(OtherActor);
+
 	ACoopGameTrackerBot* OtherTrackerBot = Cast<ACoopGameTrackerBot>(OtherActor);
 	if (OtherTrackerBot)
 	{
@@ -96,6 +98,8 @@ void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void ACoopGameTrackerBot::NotifyActorEndOverlap(AActor* OtherActor)
 {
+	Super::NotifyActorEndOverlap(OtherActor);
+
 	ACoopGameTrackerBot* OtherTrackerBot = Cast<ACoopGameTrackerBot>(OtherActor);
 	if (OtherTrackerBot)
 	{
