@@ -29,7 +29,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
 	int32 TotalNumberOfTicks = 0;
 
-
 	virtual void BeginPlay() override;
 
 private:
