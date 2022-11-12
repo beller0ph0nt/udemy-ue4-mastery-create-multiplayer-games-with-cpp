@@ -7,6 +7,19 @@ UCoopGameHealthComponent::UCoopGameHealthComponent()
 	SetIsReplicatedByDefault(true);
 }
 
+void UCoopGameHealthComponent::AddHealth(float Health)
+{
+	if (Health <= 0.0f || HealthComponentSync.Health <= 0.0f)
+	{
+		return;
+	}
+
+	HealthComponentSync.Health = FMath::Clamp(HealthComponentSync.Health + Health, 0.0f, DefaultHealth);
+	HealthComponentSync.Damage = -Health;
+
+	OnRep_HealthComponentSync();
+}
+
 void UCoopGameHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();

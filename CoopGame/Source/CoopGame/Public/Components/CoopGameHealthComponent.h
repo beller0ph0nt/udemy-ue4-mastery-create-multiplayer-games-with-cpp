@@ -38,6 +38,9 @@ public:
 
 	UCoopGameHealthComponent();
 
+	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
+	void AddHealth(float Health);
+
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_HealthComponentSync)
 	FHealthComponentSync HealthComponentSync;
