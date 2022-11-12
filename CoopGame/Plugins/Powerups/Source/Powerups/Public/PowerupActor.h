@@ -31,7 +31,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
 	int32 TotalNumberOfTicks = 0;
 
-	virtual void BeginPlay() override;
+	UPROPERTY(ReplicatedUsing = OnRep_bActivated)
+	bool bActivated = false;
+
+	UFUNCTION()
+	void OnRep_bActivated();
 
 private:
 	int32 NumberOfTicksProcessed = 0;

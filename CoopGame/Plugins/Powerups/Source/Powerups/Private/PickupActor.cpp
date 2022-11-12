@@ -14,18 +14,23 @@ APickupActor::APickupActor()
 	DecalComponent->AddRelativeRotation(FRotator(90.0, 0.0, 0.0));
 	DecalComponent->DecalSize = FVector(DecalThickness, DecalSize, DecalSize);
 	DecalComponent->SetupAttachment(SphereComponent);
+
+	SetReplicates(true);
 }
 
 void APickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (PowerupInstance)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		PowerupInstance->PowerupActivate();
-		PowerupInstance = nullptr;
+		if (PowerupInstance)
+		{
+			PowerupInstance->PowerupActivate();
+			PowerupInstance = nullptr;
 
-		GetWorldTimerManager().SetTimer(RespawnPowerupTimer, this, &ThisClass::RespawnPowerup, RespawnPowerupInterval);
+			GetWorldTimerManager().SetTimer(RespawnPowerupTimer, this, &ThisClass::RespawnPowerup, RespawnPowerupInterval);
+		}
 	}
 }
 
@@ -38,14 +43,17 @@ void APickupActor::BeginPlay()
 
 void APickupActor::RespawnPowerup()
 {
-	if (!PowerupClass)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PowerupClass is nullptr in %s. Please update your blueprint."), *GetName());
-		return;
+		if (!PowerupClass)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PowerupClass is nullptr in %s. Please update your blueprint."), *GetName());
+			return;
+		}
+
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		PowerupInstance = GetWorld()->SpawnActor<APowerupActor>(PowerupClass, GetTransform(), SpawnParameters);
 	}
-
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	PowerupInstance = GetWorld()->SpawnActor<APowerupActor>(PowerupClass, GetTransform(), SpawnParameters);
 }
