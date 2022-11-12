@@ -13,16 +13,16 @@ class POWERUPS_API APowerupActor : public AActor
 public:	
 	APowerupActor();
 
-	void PowerupActivate();
+	void PowerupActivate(AActor* Actor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerup")
-	void OnActivate();
+	void OnActivate(AActor* PowerupActor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerup")
 	void OnPowerupTick();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerup")
-	void OnExpire();
+	void OnExpire(AActor* PowerupActor);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Powerup")
@@ -40,6 +40,9 @@ protected:
 private:
 	int32 NumberOfTicksProcessed = 0;
 	FTimerHandle PowerupTickTimer;
+
+	UPROPERTY(Replicated)
+	AActor* ActorPickedupPowerup;
 
 	void PowerupTickTimerHandler();
 };

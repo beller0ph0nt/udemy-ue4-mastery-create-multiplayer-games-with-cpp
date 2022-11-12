@@ -26,7 +26,7 @@ void APickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 	{
 		if (PowerupInstance)
 		{
-			PowerupInstance->PowerupActivate();
+			PowerupInstance->PowerupActivate(OtherActor);
 			PowerupInstance = nullptr;
 
 			GetWorldTimerManager().SetTimer(RespawnPowerupTimer, this, &ThisClass::RespawnPowerup, RespawnPowerupInterval);

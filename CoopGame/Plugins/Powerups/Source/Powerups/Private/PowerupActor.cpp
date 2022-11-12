@@ -1,5 +1,6 @@
 #include "PowerupActor.h"
 
+#include "Kismet/KismetSystemLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 APowerupActor::APowerupActor()
@@ -7,8 +8,9 @@ APowerupActor::APowerupActor()
 	SetReplicates(true);
 }
 
-void APowerupActor::PowerupActivate()
+void APowerupActor::PowerupActivate(AActor* Actor)
 {
+	ActorPickedupPowerup = Actor;
 	if (0.0f < TimeBetweenPowerupTicks)
 	{
 		bActivated = true;
@@ -24,7 +26,8 @@ void APowerupActor::OnRep_bActivated()
 	{
 		if (bActivated)
 		{
-			OnActivate();
+			UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("OnRep_bActivated!!!")));
+			OnActivate(ActorPickedupPowerup);
 		}
 	}
 }
@@ -34,7 +37,7 @@ void APowerupActor::PowerupTickTimerHandler()
 	if (TotalNumberOfTicks <= NumberOfTicksProcessed)
 	{
 		GetWorldTimerManager().ClearTimer(PowerupTickTimer);
-		OnExpire();
+		OnExpire(ActorPickedupPowerup);
 
 		bActivated = true;
 		OnRep_bActivated();
@@ -52,5 +55,6 @@ void APowerupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APowerupActor, bActivated);
+	DOREPLIFETIME(APowerupActor, ActorPickedupPowerup);
 }
 
