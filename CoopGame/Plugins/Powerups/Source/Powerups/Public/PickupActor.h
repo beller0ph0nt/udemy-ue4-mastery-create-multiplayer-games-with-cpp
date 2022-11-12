@@ -29,7 +29,7 @@ protected:
 	UPROPERTY(EditInstanceOnly, Category = "Pickup|Powerup")
 	TSubclassOf<APowerupActor> PowerupClass;
 
-	UPROPERTY(VisibleAnywhere, Category = "Pickup|Powerup")
+	UPROPERTY(EditInstanceOnly, Category = "Pickup|Powerup")
 	float RespawnPowerupInterval = 5.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup|Sizes")
