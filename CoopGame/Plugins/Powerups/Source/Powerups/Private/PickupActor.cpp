@@ -2,6 +2,7 @@
 
 #include "Components/DecalComponent.h"
 #include "Components/SphereComponent.h"
+#include "PowerupActor.h"
 
 APickupActor::APickupActor()
 {
@@ -19,10 +20,32 @@ void APickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	// @TODO: Grant a powerup to player if available
+	if (PowerupInstance)
+	{
+		PowerupInstance->PowerupActivate();
+		PowerupInstance = nullptr;
+
+		GetWorldTimerManager().SetTimer(RespawnPowerupTimer, this, &ThisClass::RespawnPowerup, RespawnPowerupInterval);
+	}
 }
 
 void APickupActor::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();
+
+	RespawnPowerup();
+}
+
+void APickupActor::RespawnPowerup()
+{
+	if (!PowerupClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PowerupClass is nullptr in %s. Please update your blueprint."), *GetName());
+		return;
+	}
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	PowerupInstance = GetWorld()->SpawnActor<APowerupActor>(PowerupClass, GetTransform(), SpawnParameters);
 }

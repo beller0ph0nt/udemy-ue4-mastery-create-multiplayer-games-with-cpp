@@ -5,6 +5,7 @@
 
 #include "PickupActor.generated.h"
 
+class APowerupActor;
 class UDecalComponent;
 class USphereComponent;
 
@@ -25,6 +26,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UDecalComponent* DecalComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup|Powerup")
+	TSubclassOf<APowerupActor> PowerupClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "Pickup|Powerup")
+	float RespawnPowerupInterval = 5.0f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup|Sizes")
 	float DecalSize = 75.0f;
 
@@ -32,4 +39,11 @@ protected:
 	float DecalThickness = 64.0f;
 
 	virtual void BeginPlay() override;
+
+private:
+	APowerupActor* PowerupInstance;
+	FTimerHandle RespawnPowerupTimer;
+
+	UFUNCTION()
+	void RespawnPowerup();
 };

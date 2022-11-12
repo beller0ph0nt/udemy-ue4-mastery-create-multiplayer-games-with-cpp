@@ -13,6 +13,8 @@ class POWERUPS_API APowerupActor : public AActor
 public:	
 	APowerupActor();
 
+	void PowerupActivate();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerup")
 	void OnActivate();
 
@@ -36,5 +38,4 @@ private:
 	FTimerHandle PowerupTickTimer;
 
 	void PowerupTickTimerHandler();
-	void PowerupActivate();
 };
