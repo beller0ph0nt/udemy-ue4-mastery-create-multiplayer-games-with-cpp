@@ -16,4 +16,31 @@ public:
 	FPostLoginSignature OnPostLogin;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	virtual void StartPlay() override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode|BotsSpawn")
+	float SpawnNewBotRate = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode|BotsSpawn")
+	int32 BotsPerWaveMultiplyer = 2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "GameMode|BotsSpawn")
+	float DelayBetweenSpawningWaves = 13.0f;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
+	void SpawnNewBot();
+
+	void StartSpawningBots();
+	void FinishSpawningBots();
+	void PrepareForTheNextSpawningWave();
+
+private:
+	FTimerHandle SpawnNewBotTimer;
+
+	int32 CurrentWaveNumber = 0;
+	int32 BotsToSpawnPerCurrentWave = 1;
+
+	UFUNCTION()
+	void SpawnNewBotHandler();
 };
