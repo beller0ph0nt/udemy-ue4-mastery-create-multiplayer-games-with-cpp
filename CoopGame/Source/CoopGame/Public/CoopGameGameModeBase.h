@@ -15,8 +15,11 @@ public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPostLoginSignature, APlayerController*, NewPlayer);
 	FPostLoginSignature OnPostLogin;
 
+	ACoopGameGameModeBase();
+
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void StartPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "GameMode|BotsSpawn")
@@ -34,9 +37,12 @@ protected:
 	void StartSpawningBots();
 	void FinishSpawningBots();
 	void PrepareForTheNextSpawningWave();
+	bool IsAllBotsHaveDied();
+	void CheckSpawningBotsState();
 
 private:
 	FTimerHandle SpawnNewBotTimer;
+	FTimerHandle NextSpawningWaveTimer;
 
 	int32 CurrentWaveNumber = 0;
 	int32 BotsToSpawnPerCurrentWave = 1;

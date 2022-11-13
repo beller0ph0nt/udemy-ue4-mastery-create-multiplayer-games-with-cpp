@@ -7,6 +7,11 @@ UCoopGameHealthComponent::UCoopGameHealthComponent()
 	SetIsReplicatedByDefault(true);
 }
 
+float UCoopGameHealthComponent::GetHealth() const
+{
+	return HealthComponentSync.Health;
+}
+
 void UCoopGameHealthComponent::AddHealth(float Health)
 {
 	if (Health <= 0.0f || HealthComponentSync.Health <= 0.0f)

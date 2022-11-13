@@ -37,6 +37,7 @@ public:
 	FOnHealthChangedSignature OnHealthChanged;
 
 	UCoopGameHealthComponent();
+	float GetHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
 	void AddHealth(float Health);
