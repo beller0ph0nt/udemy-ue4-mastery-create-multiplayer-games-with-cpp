@@ -5,6 +5,7 @@
 
 #include "CoopGameGameModeBase.generated.h"
 
+enum class EGameState : uint8;
 
 UCLASS()
 class COOPGAME_API ACoopGameGameModeBase : public AGameModeBase
@@ -48,6 +49,8 @@ private:
 
 	int32 CurrentWaveNumber = 0;
 	int32 BotsToSpawnPerCurrentWave = 1;
+
+	void SetGameState(EGameState NewGameState);
 
 	UFUNCTION()
 	void SpawnNewBotHandler();

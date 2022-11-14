@@ -3,12 +3,15 @@
 #include "AI/CoopGameTrackerBot.h"
 #include "Components/CoopGameHealthComponent.h"
 #include "CoopGameCharacter.h"
+#include "CoopGameGameState.h"
 #include "EngineUtils.h"
 
 ACoopGameGameModeBase::ACoopGameGameModeBase()
 {
 	PrimaryActorTick.TickInterval = 1.0f;
 	PrimaryActorTick.bCanEverTick = true;
+
+	GameStateClass = ACoopGameGameState::StaticClass();
 }
 
 void ACoopGameGameModeBase::PostLogin(APlayerController* NewPlayer)
@@ -113,6 +116,15 @@ void ACoopGameGameModeBase::GameOver()
 
 	// @TODO: Finish up the match. Prepent to players 'Game Over'.
 	UE_LOG(LogTemp, Log, TEXT("GAME OVER"));
+}
+
+void ACoopGameGameModeBase::SetGameState(EGameState NewGameState)
+{
+	ACoopGameGameState* GS = GetGameState<ACoopGameGameState>();
+	if (ensureAlways(GS))
+	{
+		GS->GameState = NewGameState;
+	}
 }
 
 void ACoopGameGameModeBase::SpawnNewBotHandler()
