@@ -39,6 +39,8 @@ protected:
 	void PrepareForTheNextSpawningWave();
 	bool IsAllBotsHaveDied();
 	void CheckSpawningBotsState();
+	void CheckAnyPlayerAlive();
+	void GameOver();
 
 private:
 	FTimerHandle SpawnNewBotTimer;

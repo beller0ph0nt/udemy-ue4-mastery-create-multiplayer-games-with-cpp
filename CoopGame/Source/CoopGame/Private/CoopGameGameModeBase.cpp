@@ -2,6 +2,7 @@
 
 #include "AI/CoopGameTrackerBot.h"
 #include "Components/CoopGameHealthComponent.h"
+#include "CoopGameCharacter.h"
 #include "EngineUtils.h"
 
 ACoopGameGameModeBase::ACoopGameGameModeBase()
@@ -29,6 +30,7 @@ void ACoopGameGameModeBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CheckSpawningBotsState();
+	CheckAnyPlayerAlive();
 }
 
 void ACoopGameGameModeBase::StartSpawningBots()
@@ -55,13 +57,13 @@ bool ACoopGameGameModeBase::IsAllBotsHaveDied()
 {
 	for (TActorIterator<ACoopGameTrackerBot> It(GetWorld()); It; ++It)
 	{
-		ACoopGameTrackerBot* Bot = *It;
+		const ACoopGameTrackerBot* Bot = *It;
 		if (!Bot)
 		{
 			continue;
 		}
 
-		UCoopGameHealthComponent* HealthComponent = Cast<UCoopGameHealthComponent>(Bot->GetComponentByClass(UCoopGameHealthComponent::StaticClass()));
+		const UCoopGameHealthComponent* HealthComponent = Cast<UCoopGameHealthComponent>(Bot->GetComponentByClass(UCoopGameHealthComponent::StaticClass()));
 		if (HealthComponent && 0.0f < HealthComponent->GetHealth())
 		{
 			return false;
@@ -83,6 +85,34 @@ void ACoopGameGameModeBase::CheckSpawningBotsState()
 	{
 		PrepareForTheNextSpawningWave();
 	}
+}
+
+void ACoopGameGameModeBase::CheckAnyPlayerAlive()
+{
+	for (TActorIterator<ACoopGameCharacter> It(GetWorld()); It; ++It)
+	{
+		const ACoopGameCharacter* Character = *It;
+		if (!Character)
+		{
+			continue;
+		}
+
+		const UCoopGameHealthComponent* HealthComponent = Cast<UCoopGameHealthComponent>(Character->GetComponentByClass(UCoopGameHealthComponent::StaticClass()));
+		if (HealthComponent && 0.0f < HealthComponent->GetHealth())
+		{
+			return;
+		}
+	}
+
+	GameOver();
+}
+
+void ACoopGameGameModeBase::GameOver()
+{
+	FinishSpawningBots();
+
+	// @TODO: Finish up the match. Prepent to players 'Game Over'.
+	UE_LOG(LogTemp, Log, TEXT("GAME OVER"));
 }
 
 void ACoopGameGameModeBase::SpawnNewBotHandler()
