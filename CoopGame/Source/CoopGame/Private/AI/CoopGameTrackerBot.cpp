@@ -121,7 +121,12 @@ void ACoopGameTrackerBot::BeginPlay()
 		ACoopGameGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ACoopGameGameModeBase>();
 		if (GameMode)
 		{
-			GameMode->OnPostLogin.AddDynamic(this, &ThisClass::HandleNewPlayer);
+			bAtLeastOnePlayerInTheGame = GameMode->IsAnyPlayerAliveInTheGame();
+			if (bAtLeastOnePlayerInTheGame)
+			{
+				NextPathPoint = GetNextPathPoint();
+			}
+			//GameMode->OnPostLogin.AddDynamic(this, &ThisClass::HandleNewPlayer);
 		}
 	}
 

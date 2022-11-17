@@ -11,7 +11,27 @@ ACoopGameGameModeBase::ACoopGameGameModeBase()
 	PrimaryActorTick.TickInterval = 1.0f;
 	PrimaryActorTick.bCanEverTick = true;
 
-	GameStateClass = ACoopGameGameState::StaticClass();
+	//GameStateClass = ACoopGameGameState::StaticClass();
+}
+
+bool ACoopGameGameModeBase::IsAnyPlayerAliveInTheGame() const
+{
+	for (TActorIterator<ACoopGameCharacter> It(GetWorld()); It; ++It)
+	{
+		const ACoopGameCharacter* Character = *It;
+		if (!Character)
+		{
+			continue;
+		}
+
+		const UCoopGameHealthComponent* HealthComponent = Cast<UCoopGameHealthComponent>(Character->GetComponentByClass(UCoopGameHealthComponent::StaticClass()));
+		if (HealthComponent && 0.0f < HealthComponent->GetHealth())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void ACoopGameGameModeBase::PostLogin(APlayerController* NewPlayer)
@@ -44,6 +64,8 @@ void ACoopGameGameModeBase::StartSpawningBots()
 	BotsToSpawnPerCurrentWave = BotsPerWaveMultiplyer * CurrentWaveNumber;
 
 	GetWorldTimerManager().SetTimer(SpawnNewBotTimer, this, &ThisClass::SpawnNewBotHandler, SpawnNewBotRate, true, 0.0f);
+
+	SetupGameState(ECoopGameState::SpawningBotsInProgress);
 }
 
 void ACoopGameGameModeBase::FinishSpawningBots()
@@ -54,6 +76,8 @@ void ACoopGameGameModeBase::FinishSpawningBots()
 void ACoopGameGameModeBase::PrepareForTheNextSpawningWave()
 {
 	GetWorldTimerManager().SetTimer(NextSpawningWaveTimer, this, &ThisClass::StartSpawningBots, DelayBetweenSpawningWaves);
+
+	SetupGameState(ECoopGameState::WaitingSpawningBotsStart);
 }
 
 bool ACoopGameGameModeBase::IsAllBotsHaveDied()
@@ -92,19 +116,9 @@ void ACoopGameGameModeBase::CheckSpawningBotsState()
 
 void ACoopGameGameModeBase::CheckAnyPlayerAlive()
 {
-	for (TActorIterator<ACoopGameCharacter> It(GetWorld()); It; ++It)
+	if (IsAnyPlayerAliveInTheGame())
 	{
-		const ACoopGameCharacter* Character = *It;
-		if (!Character)
-		{
-			continue;
-		}
-
-		const UCoopGameHealthComponent* HealthComponent = Cast<UCoopGameHealthComponent>(Character->GetComponentByClass(UCoopGameHealthComponent::StaticClass()));
-		if (HealthComponent && 0.0f < HealthComponent->GetHealth())
-		{
-			return;
-		}
+		return;
 	}
 
 	GameOver();
@@ -114,16 +128,18 @@ void ACoopGameGameModeBase::GameOver()
 {
 	FinishSpawningBots();
 
+	SetupGameState(ECoopGameState::GameOver);
+
 	// @TODO: Finish up the match. Prepent to players 'Game Over'.
 	UE_LOG(LogTemp, Log, TEXT("GAME OVER"));
 }
 
-void ACoopGameGameModeBase::SetGameState(EGameState NewGameState)
+void ACoopGameGameModeBase::SetupGameState(ECoopGameState NewGameState)
 {
 	ACoopGameGameState* GS = GetGameState<ACoopGameGameState>();
-	if (ensureAlways(GS))
+	if (GS)
 	{
-		GS->GameState = NewGameState;
+		GS->SetGameState(NewGameState);
 	}
 }
 

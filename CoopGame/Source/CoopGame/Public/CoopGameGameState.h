@@ -6,11 +6,10 @@
 #include "CoopGameGameState.generated.h"
 
 UENUM(BlueprintType)
-enum class EGameState : uint8
+enum class ECoopGameState : uint8
 {
-	WaitingSpawningBotsStart,
+	WaitingSpawningBotsStart ,
 	SpawningBotsInProgress,
-	WaitingSpawningBotsComplete,
 	GameOver
 };
 
@@ -20,14 +19,18 @@ class COOPGAME_API ACoopGameGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintReadOnly, Replicated = OnRep_GameState, Category = "GameState")
-	EGameState GameState;
+	ACoopGameGameState();
+
+	void SetGameState(ECoopGameState NewGameState);
 
 protected:
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_GameState, Category = "GameState")
+	ECoopGameState GameState;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameState|Events")
-	void OnGameStateChange(EGameState NewGameState, EGameState OldGameState);
+	void OnGameStateChange(ECoopGameState NewGameState, ECoopGameState OldGameState);
 
 private:
 	UFUNCTION()
-	void OnRep_GameState(EGameState OldGameState);
+	void OnRep_GameState(ECoopGameState OldGameState);
 };

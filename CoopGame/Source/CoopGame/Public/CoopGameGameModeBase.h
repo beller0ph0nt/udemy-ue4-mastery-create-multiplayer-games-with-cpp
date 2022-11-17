@@ -5,7 +5,7 @@
 
 #include "CoopGameGameModeBase.generated.h"
 
-enum class EGameState : uint8;
+enum class ECoopGameState : uint8;
 
 UCLASS()
 class COOPGAME_API ACoopGameGameModeBase : public AGameModeBase
@@ -17,6 +17,7 @@ public:
 	FPostLoginSignature OnPostLogin;
 
 	ACoopGameGameModeBase();
+	bool IsAnyPlayerAliveInTheGame() const;
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void StartPlay() override;
@@ -50,7 +51,7 @@ private:
 	int32 CurrentWaveNumber = 0;
 	int32 BotsToSpawnPerCurrentWave = 1;
 
-	void SetGameState(EGameState NewGameState);
+	void SetupGameState(ECoopGameState NewGameState);
 
 	UFUNCTION()
 	void SpawnNewBotHandler();
