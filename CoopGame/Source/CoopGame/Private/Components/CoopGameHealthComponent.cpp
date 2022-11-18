@@ -1,5 +1,6 @@
 #include "Components/CoopGameHealthComponent.h"
 
+#include "CoopGameGameModeBase.h"
 #include "Net/UnrealNetwork.h"
 
 UCoopGameHealthComponent::UCoopGameHealthComponent()
@@ -55,7 +56,7 @@ void UCoopGameHealthComponent::TakeAnyDamageHandler(
 	AController* InstigatedBy,
 	AActor* DamageCauser)
 {
-	if (Damage <= 0.0f)
+	if (Damage <= 0.0f || IsDead())
 	{
 		return;
 	}
@@ -64,6 +65,20 @@ void UCoopGameHealthComponent::TakeAnyDamageHandler(
 	HealthComponentSync.Damage = Damage;
 
 	OnRep_HealthComponentSync();
+
+	if (IsDead())
+	{
+		ACoopGameGameModeBase* GM = GetWorld()->GetAuthGameMode<ACoopGameGameModeBase>();
+		if (GM && InstigatedBy)
+		{
+			GM->OnPlayerKill.Broadcast(DamagedActor, InstigatedBy->GetPawn());
+		}
+	}
+}
+
+bool UCoopGameHealthComponent::IsDead() const
+{
+	return HealthComponentSync.Health <= 0.0f;
 }
 
 void UCoopGameHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

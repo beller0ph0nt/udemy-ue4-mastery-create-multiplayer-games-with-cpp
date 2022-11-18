@@ -7,14 +7,19 @@
 
 enum class ECoopGameState : uint8;
 
+
 UCLASS()
 class COOPGAME_API ACoopGameGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPostLoginSignature, APlayerController*, NewPlayer);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FPlayerKillSignature, const AActor*, VictimActor, const AActor*, KillerActor);
+public:
 	FPostLoginSignature OnPostLogin;
+
+	UPROPERTY(BlueprintAssignable, Category = "GameMode")
+	FPlayerKillSignature OnPlayerKill;
 
 	ACoopGameGameModeBase();
 	bool IsAnyPlayerAliveInTheGame() const;

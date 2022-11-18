@@ -4,6 +4,7 @@
 #include "Components/CoopGameHealthComponent.h"
 #include "CoopGameCharacter.h"
 #include "CoopGameGameState.h"
+#include "CoopGamePlayerState.h"
 #include "EngineUtils.h"
 
 ACoopGameGameModeBase::ACoopGameGameModeBase()
@@ -11,7 +12,8 @@ ACoopGameGameModeBase::ACoopGameGameModeBase()
 	PrimaryActorTick.TickInterval = 1.0f;
 	PrimaryActorTick.bCanEverTick = true;
 
-	//GameStateClass = ACoopGameGameState::StaticClass();
+	GameStateClass = ACoopGameGameState::StaticClass();
+	PlayerStateClass = ACoopGamePlayerState::StaticClass();
 }
 
 bool ACoopGameGameModeBase::IsAnyPlayerAliveInTheGame() const
