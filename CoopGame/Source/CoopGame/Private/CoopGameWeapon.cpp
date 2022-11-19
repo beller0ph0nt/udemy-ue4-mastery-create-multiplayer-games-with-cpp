@@ -27,7 +27,7 @@ ACoopGameWeapon::ACoopGameWeapon()
 	MuzzleSocketName = "MuzzleSocket";
 	TracerEndPointParameterName = "BeamEnd";
 
-	SetReplicates(true);
+	bReplicates = true;
 	NetUpdateFrequency = 66.6f;
 	MinNetUpdateFrequency = 33.3f;
 }
