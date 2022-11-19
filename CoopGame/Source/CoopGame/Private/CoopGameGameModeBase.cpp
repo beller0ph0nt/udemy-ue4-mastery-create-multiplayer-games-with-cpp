@@ -80,6 +80,8 @@ void ACoopGameGameModeBase::PrepareForTheNextSpawningWave()
 	GetWorldTimerManager().SetTimer(NextSpawningWaveTimer, this, &ThisClass::StartSpawningBots, DelayBetweenSpawningWaves);
 
 	SetupGameState(ECoopGameState::WaitingSpawningBotsStart);
+
+	RestartDeadPlayers();
 }
 
 bool ACoopGameGameModeBase::IsAllBotsHaveDied()
@@ -142,6 +144,18 @@ void ACoopGameGameModeBase::SetupGameState(ECoopGameState NewGameState)
 	if (GS)
 	{
 		GS->SetGameState(NewGameState);
+	}
+}
+
+void ACoopGameGameModeBase::RestartDeadPlayers()
+{
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (PlayerController && PlayerController->GetPawn() == nullptr)
+		{
+			RestartPlayer(PlayerController);
+		}
 	}
 }
 

@@ -57,6 +57,7 @@ private:
 	int32 BotsToSpawnPerCurrentWave = 1;
 
 	void SetupGameState(ECoopGameState NewGameState);
+	void RestartDeadPlayers();
 
 	UFUNCTION()
 	void SpawnNewBotHandler();
