@@ -14,6 +14,7 @@ ACoopGameCharacter::ACoopGameCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	GetMovementComponent()->SetIsReplicated(true);
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->bUsePawnControlRotation = true;

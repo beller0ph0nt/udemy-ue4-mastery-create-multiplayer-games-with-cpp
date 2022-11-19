@@ -5,7 +5,8 @@
 
 APowerupActor::APowerupActor()
 {
-	SetReplicates(true);
+	//SetReplicates(true);
+	bReplicates = true;
 }
 
 void APowerupActor::PowerupActivate(AActor* Actor)
@@ -22,7 +23,7 @@ void APowerupActor::PowerupActivate(AActor* Actor)
 
 void APowerupActor::OnRep_bActivated()
 {
-	if (!IsNetMode(ENetMode::NM_DedicatedServer))
+	//if (!IsNetMode(ENetMode::NM_DedicatedServer))
 	{
 		if (bActivated)
 		{
