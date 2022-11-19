@@ -141,9 +141,9 @@ FVector ACoopGameTrackerBot::GetNextPathPoint()
 	if (Character)
 	{
 		UNavigationPath* NavigationPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), Character);
-		check(NavigationPath);
+		//check(NavigationPath);
 
-		return 1 < NavigationPath->PathPoints.Num() ? NavigationPath->PathPoints[1] : GetActorLocation();
+		return (NavigationPath && 1 < NavigationPath->PathPoints.Num()) ? NavigationPath->PathPoints[1] : GetActorLocation();
 	}
 
 	return {};
