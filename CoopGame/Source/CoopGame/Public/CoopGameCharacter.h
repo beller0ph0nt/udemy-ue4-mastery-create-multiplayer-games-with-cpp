@@ -24,6 +24,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetActorEyesViewPoint(FVector& OutLocation, FRotator& OutRotation) const override;
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	void EndFire();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComponent;
@@ -67,8 +73,6 @@ private:
 	void BeginZoom() { bWantsToZoom = true; }
 	void EndZoom() { bWantsToZoom = false; }
 
-	void StartFire();
-	void EndFire();
 
 	UFUNCTION()
 	void OnHealthChanged(UCoopGameHealthComponent* Component, float Health, float Damage);
