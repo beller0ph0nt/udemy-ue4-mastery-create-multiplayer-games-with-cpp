@@ -60,8 +60,10 @@ void ACoopGameWeapon::Fire()
 		FRotator EyesRotation;
 		WeaponOwner->GetActorEyesViewPoint(EyesLocation, EyesRotation);
 
+		FVector ShotDirection = FMath::VRandCone(EyesRotation.Vector(), FMath::DegreesToRadians(BulletSpreadConeHalfAngleInDegrees));
+
 		FVector Start = EyesLocation;
-		FVector End = Start + (EyesRotation.Vector() * 10000);
+		FVector End = Start + (ShotDirection * 10000);
 		FVector TracerEndPoint = End;
 
 		FCollisionQueryParams QueryParams;

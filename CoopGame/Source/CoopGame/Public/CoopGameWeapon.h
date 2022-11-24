@@ -71,6 +71,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float DelayBetweenShots = 0.5;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin = 0.0f))
+	float BulletSpreadConeHalfAngleInDegrees = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float BaseDamage = 20.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float HeadShotDamageMultipier = 4.0f;
+
 	UPROPERTY(ReplicatedUsing = OnRep_HitSync)
 	FHitSync HitSync;
 
@@ -83,9 +92,6 @@ protected:
 	void OnRep_HitSync();
 
 private:
-	float BaseDamage = 20.0f;
-	float HeadShotDamageMultipier = 4.0f;
-
 	bool bIsFiring = false;
 	FTimerHandle DelayBetweenShotsTimerHandle;
 
