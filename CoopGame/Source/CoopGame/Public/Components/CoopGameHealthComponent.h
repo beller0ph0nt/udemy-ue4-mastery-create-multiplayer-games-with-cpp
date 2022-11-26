@@ -74,5 +74,6 @@ private:
 		AController* InstigatedBy,
 		AActor* DamageCauser);
 
+	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
 	bool IsDead() const;
 };
