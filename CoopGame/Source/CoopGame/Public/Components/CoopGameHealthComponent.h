@@ -25,9 +25,10 @@ public:
 
 	UPROPERTY()
 	float Damage;
+
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class COOPGAME_API UCoopGameHealthComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -36,11 +37,21 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "HealthComponent|Events")
 	FOnHealthChangedSignature OnHealthChanged;
 
+	// TODO: Move this variable into separate component (TeamComponent) or
+	// into character base class and access it through interface functions
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HealthComponent")
+	uint8 TeamNumber = 255;
+
 	UCoopGameHealthComponent();
 	float GetHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
 	void AddHealth(float Health);
+
+	// TODO: Move this function into separate component (TeamComponent) or
+	// into character class and access it through interface (ITeam)
+	UFUNCTION(BLueprintCallable, BlueprintPure, Category = "HealthComponent")
+	static bool IsFriends(const AActor* ActorA, const AActor* ActorB);
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_HealthComponentSync)

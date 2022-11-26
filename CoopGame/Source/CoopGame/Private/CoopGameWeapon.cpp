@@ -86,7 +86,7 @@ void ACoopGameWeapon::Fire()
 				Damage *= HeadShotDamageMultipier;
 			}
 
-			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), this, DamageType);
+			UGameplayStatics::ApplyPointDamage(HitActor, Damage, Start, HitResult, WeaponOwner->GetInstigatorController(), WeaponOwner, DamageType);
 
 			PlayImpactEffects(PhysicalSurface, HitResult.ImpactPoint, HitResult.ImpactNormal);
 

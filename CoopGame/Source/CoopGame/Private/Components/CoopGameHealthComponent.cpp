@@ -26,6 +26,25 @@ void UCoopGameHealthComponent::AddHealth(float Health)
 	OnRep_HealthComponentSync();
 }
 
+bool UCoopGameHealthComponent::IsFriends(const AActor* ActorA, const AActor* ActorB)
+{
+	using UHealth = UCoopGameHealthComponent;
+
+	if (ActorA == nullptr || ActorB == nullptr)
+	{
+		return true;
+	}
+
+	const auto HealthA = Cast<UHealth>(ActorA->GetComponentByClass(UHealth::StaticClass()));
+	const auto HealthB = Cast<UHealth>(ActorB->GetComponentByClass(UHealth::StaticClass()));
+	if (HealthA == nullptr || HealthB == nullptr)
+	{
+		return true;
+	}
+
+	return HealthA->TeamNumber == HealthB->TeamNumber;
+}
+
 void UCoopGameHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -57,6 +76,11 @@ void UCoopGameHealthComponent::TakeAnyDamageHandler(
 	AActor* DamageCauser)
 {
 	if (Damage <= 0.0f || IsDead())
+	{
+		return;
+	}
+
+	if (DamagedActor != DamageCauser && IsFriends(DamagedActor, DamageCauser))
 	{
 		return;
 	}
