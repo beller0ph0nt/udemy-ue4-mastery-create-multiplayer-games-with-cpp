@@ -7,12 +7,20 @@
 #include "CoopGameGameModeBase.h"
 #include "CoopGameGameState.h"
 #include "DrawDebugHelpers.h"
+#include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "Net/UnrealNetwork.h"
 #include "Sound/SoundCue.h"
+
+static bool TrackerBotDebugDrawing = false;
+static FAutoConsoleVariableRef CVAR_TrackerBotDebugDrawing(
+	TEXT("COOP.TrackerBotDebugDrawing"),
+	TrackerBotDebugDrawing,
+	TEXT("Draw debug for tracker bot"),
+	ECVF_Cheat);
 
 ACoopGameTrackerBot::ACoopGameTrackerBot()
 {
@@ -48,7 +56,10 @@ void ACoopGameTrackerBot::Tick(float DeltaTime)
 		{
 			NextPathPoint = GetNextPathPoint();
 
-			DrawDebugString(GetWorld(), GetActorLocation(), TEXT("Target reached!!!"));
+			if (TrackerBotDebugDrawing)
+			{
+				DrawDebugString(GetWorld(), GetActorLocation(), TEXT("Target reached!!!"));
+			}
 		}
 		else
 		{
@@ -58,10 +69,16 @@ void ACoopGameTrackerBot::Tick(float DeltaTime)
 
 			MeshComponent->AddForce(Force, NAME_None, bAccelerationChange);
 
-			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + Force, Force.Size(), FColor::Yellow, false, 0.0f);
+			if (TrackerBotDebugDrawing)
+			{
+				DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + Force, Force.Size(), FColor::Yellow, false, 0.0f);
+			}
 		}
 
-		DrawDebugSphere(GetWorld(), NextPathPoint, 20.0f, 12, FColor::Yellow, false, 0.0f);
+		if (TrackerBotDebugDrawing)
+		{
+			DrawDebugSphere(GetWorld(), NextPathPoint, 20.0f, 12, FColor::Yellow, false, 0.0f);
+		}
 	}
 }
 
@@ -82,14 +99,14 @@ void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 	}
 
 	ACoopGameCharacter* PlayerPawn = Cast<ACoopGameCharacter>(OtherActor);
-	if (PlayerPawn)
+	if (PlayerPawn && !UCoopGameHealthComponent::IsFriends(this, PlayerPawn))
 	{
 		bSelfDestructionStarted = true;
 		OnRep_bSelfDestructionStarted();
 
 		if (GetLocalRole() == ROLE_Authority)
 		{
-			GetWorldTimerManager().SetTimer(SelfDestructTimerHandler,
+			GetWorldTimerManager().SetTimer(SelfDestructTimer,
 				[this]() { UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), this, nullptr); },
 				SelfDestructTimerRate, true, 0.0f);
 		}
@@ -135,13 +152,42 @@ void ACoopGameTrackerBot::BeginPlay()
 
 FVector ACoopGameTrackerBot::GetNextPathPoint()
 {
-	// TODO: Just for testing purposes. Will not work in multiplayer.
-	ACoopGameCharacter* Character = Cast<ACoopGameCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
-	//check(Character);
-	if (Character)
+	using UHealth = UCoopGameHealthComponent;
+
+	ACoopGameCharacter* NearestCharacter = nullptr;
+	float NearestCharacterDistance = FLT_MAX;
+
+	for (TActorIterator<ACoopGameCharacter> It(GetWorld()); It; ++It)
 	{
-		UNavigationPath* NavigationPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), Character);
+		ACoopGameCharacter* Character = *It;
+		if (Character == nullptr || UHealth::IsFriends(this, Character))
+		{
+			continue;
+		}
+
+		const UHealth* Health = Cast<UHealth>(Character->GetComponentByClass(UHealth::StaticClass()));
+		if (Health && 0.0f < Health->GetHealth())
+		{
+			float Distance = (Character->GetActorLocation() - GetActorLocation()).Size();
+			if (Distance < NearestCharacterDistance)
+			{
+				NearestCharacterDistance = Distance;
+				NearestCharacter = Character;
+			}
+		}
+	}
+
+	//check(NearestCharacter);
+	if (NearestCharacter)
+	{
+		UNavigationPath* NavigationPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), NearestCharacter);
 		//check(NavigationPath);
+
+		GetWorldTimerManager().ClearTimer(RefreshPathTimer);
+		GetWorldTimerManager().SetTimer(RefreshPathTimer,
+			[this]() { NextPathPoint = GetNextPathPoint(); },
+			RefreshPathDelay,
+			false);
 
 		return (NavigationPath && 1 < NavigationPath->PathPoints.Num()) ? NavigationPath->PathPoints[1] : GetActorLocation();
 	}
@@ -161,7 +207,7 @@ void ACoopGameTrackerBot::SelfExplode()
 		bIsExploded = true;
 		OnRep_bIsExploded();
 
-		GetWorldTimerManager().ClearTimer(SelfDestructTimerHandler);
+		GetWorldTimerManager().ClearTimer(SelfDestructTimer);
 
 		TArray<AActor*> IgnoreActors{ this };
 		UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage + DamageBoost, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true);
@@ -223,7 +269,11 @@ void ACoopGameTrackerBot::OnRep_bIsExploded()
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 		UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
-		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 6.0f, 0, 1.0f);
+
+		if (TrackerBotDebugDrawing)
+		{
+			DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 6.0f, 0, 1.0f);
+		}
 
 		MeshComponent->SetVisibility(false);
 		MeshComponent->SetPhysicsAngularVelocityInDegrees(FVector::Zero());

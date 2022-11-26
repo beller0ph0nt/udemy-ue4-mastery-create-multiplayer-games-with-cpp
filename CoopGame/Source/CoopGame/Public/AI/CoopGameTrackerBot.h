@@ -48,14 +48,14 @@ protected:
 	UPROPERTY()
 	UMaterialInstanceDynamic* MaterialInstanceDynamic;
 
-	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot|Explosion")
 	UParticleSystem* ExplosionEffect;
 
-	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
-	float ExplosionDamage = 40.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot|Explosion")
+	float ExplosionDamage = 60.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
-	float ExplosionRadius = 200.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot|Explosion")
+	float ExplosionRadius = 350.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot|Sounds")
 	USoundCue* StartSelfDestructSound;
@@ -84,10 +84,14 @@ private:
 	const float DamageBoostPerBot = 10.0f;
 	const float MaxDamageBoost = 40.0f;
 
+	float RefreshPathDelay = 5.0f;
+	FTimerHandle RefreshPathTimer;
+
+	float SelfDestructTimerRate = 0.5f;
+	FTimerHandle SelfDestructTimer;
+
 	FVector NextPathPoint;
 	double DisableNavigationDistance = 10.0;
-	FTimerHandle SelfDestructTimerHandler;
-	float SelfDestructTimerRate = 0.5f;
 	bool bAtLeastOnePlayerInTheGame = false;
 	bool bSelfDestructionStarted = false;
 	int BotsCounter = 0;
