@@ -20,6 +20,7 @@ class COOPGAME_API ACoopGameTrackerBot : public APawn
 public:
 	ACoopGameTrackerBot();
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;

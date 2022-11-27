@@ -43,6 +43,8 @@ public:
 	uint8 TeamNumber = 255;
 
 	UCoopGameHealthComponent();
+
+	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
 	float GetHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "HealthComponent")

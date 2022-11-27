@@ -1,5 +1,7 @@
 #include "Components/CoopGameHealthComponent.h"
 
+#include "AI/CoopGameTrackerBot.h"
+#include "CoopGameCharacter.h"
 #include "CoopGameGameModeBase.h"
 #include "Net/UnrealNetwork.h"
 
@@ -30,13 +32,37 @@ bool UCoopGameHealthComponent::IsFriends(const AActor* ActorA, const AActor* Act
 {
 	using UHealth = UCoopGameHealthComponent;
 
+	auto IsValidClass = [](const AActor* Actor)
+	{
+		return
+			Actor->IsA(ACoopGameCharacter::StaticClass()) ||
+			Actor->IsA(ACoopGameTrackerBot::StaticClass());
+	};
+
 	if (ActorA == nullptr || ActorB == nullptr)
 	{
 		return true;
 	}
 
-	const auto HealthA = Cast<UHealth>(ActorA->GetComponentByClass(UHealth::StaticClass()));
-	const auto HealthB = Cast<UHealth>(ActorB->GetComponentByClass(UHealth::StaticClass()));
+	const UActorComponent* ComponentA = nullptr;
+	if (IsValidClass(ActorA))
+	{
+		ComponentA = ActorA->GetComponentByClass(UHealth::StaticClass());
+	}
+
+	const UActorComponent* ComponentB = nullptr;
+	if (IsValidClass(ActorB))
+	{
+		ComponentB = ActorB->GetComponentByClass(UHealth::StaticClass());
+	}
+
+	if (ComponentA == nullptr || ComponentB == nullptr)
+	{
+		return true;
+	}
+
+	const UHealth* HealthA = Cast<UHealth>(ComponentA);
+	const UHealth* HealthB = Cast<UHealth>(ComponentB);
 	if (HealthA == nullptr || HealthB == nullptr)
 	{
 		return true;

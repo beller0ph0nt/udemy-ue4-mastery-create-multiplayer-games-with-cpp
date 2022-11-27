@@ -6,7 +6,7 @@
 #include "CoopGameGameModeBase.generated.h"
 
 enum class ECoopGameState : uint8;
-
+class ACoopGameCharacter;
 
 UCLASS()
 class COOPGAME_API ACoopGameGameModeBase : public AGameModeBase
@@ -23,6 +23,7 @@ public:
 
 	ACoopGameGameModeBase();
 	bool IsAnyPlayerAliveInTheGame() const;
+	ACoopGameCharacter* FindNearestPlayerTo(const AActor* Actor);
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void StartPlay() override;

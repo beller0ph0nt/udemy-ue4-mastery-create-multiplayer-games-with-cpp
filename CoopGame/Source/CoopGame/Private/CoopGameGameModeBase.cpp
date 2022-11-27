@@ -36,6 +36,39 @@ bool ACoopGameGameModeBase::IsAnyPlayerAliveInTheGame() const
 	return false;
 }
 
+ACoopGameCharacter* ACoopGameGameModeBase::FindNearestPlayerTo(const AActor* Actor)
+{
+	using UHealth = UCoopGameHealthComponent;
+
+	ACoopGameCharacter* NearestCharacter = nullptr;
+	if (Actor)
+	{
+		float NearestCharacterDistance = FLT_MAX;
+
+		for (TActorIterator<ACoopGameCharacter> It(GetWorld()); It; ++It)
+		{
+			ACoopGameCharacter* Character = *It;
+			if (Character == nullptr || UHealth::IsFriends(Actor, Character))
+			{
+				continue;
+			}
+
+			const UHealth* Health = Cast<UHealth>(Character->GetComponentByClass(UHealth::StaticClass()));
+			if (Health && 0.0f < Health->GetHealth())
+			{
+				float Distance = (Character->GetActorLocation() - Actor->GetActorLocation()).Size();
+				if (Distance < NearestCharacterDistance)
+				{
+					NearestCharacterDistance = Distance;
+					NearestCharacter = Character;
+				}
+			}
+		}
+	}
+
+	return NearestCharacter;
+}
+
 void ACoopGameGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);

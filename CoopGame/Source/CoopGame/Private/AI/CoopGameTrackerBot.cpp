@@ -45,6 +45,12 @@ ACoopGameTrackerBot::ACoopGameTrackerBot()
 	SetReplicates(true);
 }
 
+void ACoopGameTrackerBot::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	GetWorldTimerManager().ClearTimer(RefreshPathTimer);
+	GetWorldTimerManager().ClearTimer(SelfDestructTimer);
+}
+
 void ACoopGameTrackerBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -107,7 +113,11 @@ void ACoopGameTrackerBot::NotifyActorBeginOverlap(AActor* OtherActor)
 		if (GetLocalRole() == ROLE_Authority)
 		{
 			GetWorldTimerManager().SetTimer(SelfDestructTimer,
-				[this]() { UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), this, nullptr); },
+				[this]()
+				{
+					UE_LOG(LogTemp, Log, TEXT("TrackerBot: %s. Selfdestruct timer run"), *GetName());
+					UGameplayStatics::ApplyDamage(this, 20.0f, GetInstigatorController(), this, nullptr);
+				},
 				SelfDestructTimerRate, true, 0.0f);
 		}
 	}
@@ -154,42 +164,30 @@ FVector ACoopGameTrackerBot::GetNextPathPoint()
 {
 	using UHealth = UCoopGameHealthComponent;
 
-	ACoopGameCharacter* NearestCharacter = nullptr;
-	float NearestCharacterDistance = FLT_MAX;
-
-	for (TActorIterator<ACoopGameCharacter> It(GetWorld()); It; ++It)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		ACoopGameCharacter* Character = *It;
-		if (Character == nullptr || UHealth::IsFriends(this, Character))
+		ACoopGameCharacter* NearestCharacter = nullptr;
+
+		ACoopGameGameModeBase* GM = Cast<ACoopGameGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GM)
 		{
-			continue;
+			NearestCharacter = GM->FindNearestPlayerTo(this);
 		}
 
-		const UHealth* Health = Cast<UHealth>(Character->GetComponentByClass(UHealth::StaticClass()));
-		if (Health && 0.0f < Health->GetHealth())
+		//check(NearestCharacter);
+		if (NearestCharacter)
 		{
-			float Distance = (Character->GetActorLocation() - GetActorLocation()).Size();
-			if (Distance < NearestCharacterDistance)
-			{
-				NearestCharacterDistance = Distance;
-				NearestCharacter = Character;
-			}
+			UNavigationPath* NavigationPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), NearestCharacter);
+			//check(NavigationPath);
+
+			GetWorldTimerManager().ClearTimer(RefreshPathTimer);
+			GetWorldTimerManager().SetTimer(RefreshPathTimer,
+				[this]() { NextPathPoint = GetNextPathPoint(); },
+				RefreshPathDelay,
+				false);
+
+			return (NavigationPath && 1 < NavigationPath->PathPoints.Num()) ? NavigationPath->PathPoints[1] : GetActorLocation();
 		}
-	}
-
-	//check(NearestCharacter);
-	if (NearestCharacter)
-	{
-		UNavigationPath* NavigationPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), NearestCharacter);
-		//check(NavigationPath);
-
-		GetWorldTimerManager().ClearTimer(RefreshPathTimer);
-		GetWorldTimerManager().SetTimer(RefreshPathTimer,
-			[this]() { NextPathPoint = GetNextPathPoint(); },
-			RefreshPathDelay,
-			false);
-
-		return (NavigationPath && 1 < NavigationPath->PathPoints.Num()) ? NavigationPath->PathPoints[1] : GetActorLocation();
 	}
 
 	return {};
@@ -207,6 +205,8 @@ void ACoopGameTrackerBot::SelfExplode()
 		bIsExploded = true;
 		OnRep_bIsExploded();
 
+		UE_LOG(LogTemp, Log, TEXT("TrackerBot: %s. Clear timers"), *GetName());
+		GetWorldTimerManager().ClearTimer(RefreshPathTimer);
 		GetWorldTimerManager().ClearTimer(SelfDestructTimer);
 
 		TArray<AActor*> IgnoreActors{ this };
