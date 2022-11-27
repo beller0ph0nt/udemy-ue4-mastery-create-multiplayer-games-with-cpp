@@ -11,7 +11,10 @@ ACoopGameExplosiveBarrel::ACoopGameExplosiveBarrel()
 {
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	MeshComponent->SetSimulatePhysics(true);
-	MeshComponent->SetMassOverrideInKg(NAME_None, 100.0f);
+
+	// Problem: https://forums.unrealengine.com/t/gengine-not-initialized-problem/357403
+	//MeshComponent->SetMassOverrideInKg(NAME_None, 100.0f);
+
 	MeshComponent->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
 	RootComponent = MeshComponent;
 
